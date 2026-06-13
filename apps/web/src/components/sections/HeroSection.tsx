@@ -189,9 +189,9 @@ export function HeroSection() {
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="#how-it-works">
-              <button className="h-12 px-7 rounded-xl text-base font-medium text-[#94A3B8] hover:text-[#F1F5F9] transition-colors">
-                How does it work?
+            <Link href="/demo">
+              <button className="h-12 px-7 rounded-xl text-base font-medium border border-[#1A1A2E] bg-[#0D0D1A] hover:border-[#252540] text-[#94A3B8] hover:text-[#F1F5F9] transition-colors">
+                Live Demo →
               </button>
             </Link>
           </div>
