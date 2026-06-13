@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd ../.. && npx turbo build --filter=@guardian/web",
+  "buildCommand": "next build",
   "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "installCommand": "cd ../.. && npm install",
   "framework": "nextjs",
   "regions": ["fra1"]
 }
