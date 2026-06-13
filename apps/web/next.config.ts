@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import path from 'path';
 
 const CSP = [
   "default-src 'self'",
@@ -14,9 +13,6 @@ const CSP = [
 const nextConfig: NextConfig = {
   transpilePackages: ['@guardian/shared'],
   poweredByHeader: false,
-  experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
-  },
   async headers() {
     return [
       {
