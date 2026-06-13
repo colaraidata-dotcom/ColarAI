@@ -1,0 +1,71 @@
+{
+  "phase": "DEVELOPMENT",
+  "scope": "Phase 1 — Web Dashboard Pages (mock-data-first)",
+  "generatedAt": "2026-06-12T00:00:00.000Z",
+  "tasks": [
+    {
+      "id": "dev-001",
+      "title": "Check constants file and existing page/component coverage",
+      "description": "Read packages/shared/src/constants/index.ts and any existing /profiles, /reports, /notifications pages to avoid duplication.",
+      "priority": 1,
+      "status": "pending",
+      "estimate": "5min"
+    },
+    {
+      "id": "dev-002",
+      "title": "Build /profiles page — profile list with create button",
+      "description": "List all profiles (from mock). Card per profile with name, type badge, device count, status. 'New Profile' button (opens modal or navigates). Link each card to /profiles/[id].",
+      "priority": 2,
+      "status": "pending",
+      "estimate": "30min"
+    },
+    {
+      "id": "dev-003",
+      "title": "Build /profiles/[id] — profile detail with rule management",
+      "description": "Show profile info + category rules table. Allow changing action (allow/block/limit) for each category. Show site overrides list. Show schedules list. All via mock data.",
+      "priority": 3,
+      "status": "pending",
+      "estimate": "60min"
+    },
+    {
+      "id": "dev-004",
+      "title": "Build /reports page — usage charts per profile",
+      "description": "Profile selector. Weekly usage chart (Recharts area/bar). Category breakdown. Top sites list. Block events log. Use mockUsageReports.",
+      "priority": 4,
+      "status": "pending",
+      "estimate": "45min"
+    },
+    {
+      "id": "dev-005",
+      "title": "Build /notifications page — full notification list + access request flow",
+      "description": "Filterable notification list. Access requests with Approve/Reject buttons. Mark-all-read. Use mockNotifications + mockAccessRequests.",
+      "priority": 5,
+      "status": "pending",
+      "estimate": "30min"
+    },
+    {
+      "id": "dev-006",
+      "title": "Build /settings page — account + subscription info",
+      "description": "Account details display. Subscription tier card with upgrade CTA. Danger zone (delete account). Use mockAccount.",
+      "priority": 6,
+      "status": "pending",
+      "estimate": "20min"
+    },
+    {
+      "id": "dev-007",
+      "title": "Add active nav highlighting to dashboard layout",
+      "description": "Dashboard sidebar links show active state based on current pathname. Currently no active state exists.",
+      "priority": 7,
+      "status": "pending",
+      "estimate": "10min"
+    },
+    {
+      "id": "dev-008",
+      "title": "Write Playwright E2E tests for dashboard navigation",
+      "description": "Test that each nav link renders its page without errors. Extend e2e/example.spec.ts or add e2e/dashboard.spec.ts.",
+      "priority": 8,
+      "status": "pending",
+      "estimate": "20min"
+    }
+  ]
+}

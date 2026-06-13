@@ -1,0 +1,10 @@
+{
+  "pid": null,
+  "startedAt": "2026-06-12T00:00:00.000Z",
+  "provider": "claude-sonnet-4-6",
+  "invokedVia": "skill",
+  "status": "running",
+  "updatedAt": "2026-06-12T00:00:00.000Z",
+  "project": "guardian-monorepo",
+  "spec": "Guardian_Product_Spec_v0.1.docx"
+}

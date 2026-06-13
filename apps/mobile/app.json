@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Guardian",
+    "slug": "guardian-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#0F0F23",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.guardian.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0F0F23"
+      },
+      "package": "com.guardian.app"
+    },
+    "plugins": ["expo-router", "expo-font", "expo-secure-store"],
+    "scheme": "guardian",
+    "experiments": { "typedRoutes": false }
+  }
+}

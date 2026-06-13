@@ -1,0 +1,203 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../../DataBrain/addyosmani-agent-skills"
+		},
+		{
+			"path": "../../../../DataBrain/agentmemory"
+		},
+		{
+			"path": "../../../../DataBrain/ai-legal-claude"
+		},
+		{
+			"path": "../../../../DataBrain/ai-marketing-claude"
+		},
+		{
+			"path": "../../../../DataBrain/ai-marketing-claude-code-skills"
+		},
+		{
+			"path": "../../../../DataBrain/AI-Research-SKILLs"
+		},
+		{
+			"path": "../../../../DataBrain/ai-sales-team-claude"
+		},
+		{
+			"path": "../../../../DataBrain/alirezarezvani-skills"
+		},
+		{
+			"path": "../../../../DataBrain/andrej-karpathy-skills"
+		},
+		{
+			"path": "../../../../DataBrain/angular-skills"
+		},
+		{
+			"path": "../../../../DataBrain/anthropics-skills-official"
+		},
+		{
+			"path": "../../../../DataBrain/antonbabenko-terraform-skill"
+		},
+		{
+			"path": "../../../../DataBrain/awesome-agent-skills"
+		},
+		{
+			"path": "../../../../DataBrain/awesome-claude-skills"
+		},
+		{
+			"path": "../../../../DataBrain/awrshift-claude-memory-kit"
+		},
+		{
+			"path": "../../../../DataBrain/bitwize-music-studio-claude-ai-music-skills"
+		},
+		{
+			"path": "../../../../DataBrain/blader-humanizer"
+		},
+		{
+			"path": "../../../../DataBrain/claude-d3js-skill"
+		},
+		{
+			"path": "../../../../DataBrain/claude-for-legal"
+		},
+		{
+			"path": "../../../../DataBrain/claude-scientific-skills"
+		},
+		{
+			"path": "../../../../DataBrain/claudeskill-loki-mode"
+		},
+		{
+			"path": "../../../../DataBrain/CloudAI-X-threejs-skills"
+		},
+		{
+			"path": "../../../../DataBrain/coderabbitai-skills"
+		},
+		{
+			"path": "../../../../DataBrain/cybersecurity-skills"
+		},
+		{
+			"path": "../../../../DataBrain/DataBrain"
+		},
+		{
+			"path": "../../../../DataBrain/degausai-wonda"
+		},
+		{
+			"path": "../../../../DataBrain/ethos-link-rails-conventions"
+		},
+		{
+			"path": "../../../../DataBrain/expo-skills"
+		},
+		{
+			"path": "../../../../DataBrain/ffuf_claude_skill"
+		},
+		{
+			"path": "../../../../DataBrain/frontend-slides"
+		},
+		{
+			"path": "../../../../DataBrain/geo-seo-claude"
+		},
+		{
+			"path": "../../../../DataBrain/get-shit-done"
+		},
+		{
+			"path": "../../../../DataBrain/gitroomhq-postiz-agent"
+		},
+		{
+			"path": "../../../../DataBrain/google-maps-scraper"
+		},
+		{
+			"path": "../../../../DataBrain/graphify-out"
+		},
+		{
+			"path": "../../../../DataBrain/HeshamFS-materials-simulation-skills"
+		},
+		{
+			"path": "../../../../DataBrain/ibelick-ui-skills"
+		},
+		{
+			"path": "../../../../DataBrain/ios-simulator-skill"
+		},
+		{
+			"path": "../../../../DataBrain/jeffallan-claude-skills"
+		},
+		{
+			"path": "../../../../DataBrain/LambdaTest-agent-skills"
+		},
+		{
+			"path": "../../../../DataBrain/marketingskills"
+		},
+		{
+			"path": "../../../../DataBrain/mattpocock-skills"
+		},
+		{
+			"path": "../../../../DataBrain/meodai-skill.color-expert"
+		},
+		{
+			"path": "../../../../DataBrain/metalbear-co-skills"
+		},
+		{
+			"path": "../../../../DataBrain/muthuishere-hand-drawn-diagrams"
+		},
+		{
+			"path": "../../../../DataBrain/nextlevelbuilder-ui-ux-pro-max-skill"
+		},
+		{
+			"path": "../../../../DataBrain/node_modules"
+		},
+		{
+			"path": "../../../../DataBrain/ognjengt-founder-skills"
+		},
+		{
+			"path": "../../../../DataBrain/openaccountants-openaccountants"
+		},
+		{
+			"path": "../../../../DataBrain/playwright-skill"
+		},
+		{
+			"path": "../../../../DataBrain/Product-Manager-Skills"
+		},
+		{
+			"path": "../../../../DataBrain/prompt-master"
+		},
+		{
+			"path": "../../../../DataBrain/prompt-security-clawsec"
+		},
+		{
+			"path": "../../../../DataBrain/qdrant-skills"
+		},
+		{
+			"path": "../../../../DataBrain/rameerez-claude-code-startup-skills"
+		},
+		{
+			"path": "../../../../DataBrain/ramzesenok-iOS-Accessibility-Audit-Skill"
+		},
+		{
+			"path": "../../../../DataBrain/robzolkos-skill-rails-upgrade"
+		},
+		{
+			"path": "../../../../DataBrain/smixs-creative-director-skill"
+		},
+		{
+			"path": "../../../../DataBrain/snyk-agent-scan"
+		},
+		{
+			"path": "../../../../DataBrain/trailofbits-skills"
+		},
+		{
+			"path": "../../../../DataBrain/trycourier-courier-skills"
+		},
+		{
+			"path": "../../../../DataBrain/video-db-skills"
+		},
+		{
+			"path": "../../../../DataBrain/web-asset-generator"
+		},
+		{
+			"path": "../../../../DataBrain/wshobson-agents"
+		},
+		{
+			"path": "../../../../DataBrain/zxkane-aws-skills"
+		}
+	],
+	"settings": {}
+}

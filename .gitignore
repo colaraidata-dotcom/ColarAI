@@ -1,0 +1,13 @@
+node_modules/
+.turbo/
+.env
+.env.local
+dist/
+.next/
+out/
+.expo/
+*.log
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -1,0 +1,13 @@
+name = "guardian-dns-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+SUPABASE_URL = ""     # set via wrangler secret put SUPABASE_URL
+SUPABASE_SERVICE_KEY = ""  # set via wrangler secret put SUPABASE_SERVICE_KEY
+
+# KV namespace for caching DNS decisions (TTL: 60s per domain per profile)
+[[kv_namespaces]]
+binding = "DNS_CACHE"
+id = "YOUR_KV_NAMESPACE_ID"      # create with: wrangler kv:namespace create DNS_CACHE
+preview_id = "YOUR_KV_PREVIEW_ID"
