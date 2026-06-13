@@ -11,6 +11,10 @@
     "type-check": "turbo type-check",
     "clean": "turbo clean && rm -rf node_modules"
   },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "devDependencies": {
     "turbo": "^2.3.0"
   },
