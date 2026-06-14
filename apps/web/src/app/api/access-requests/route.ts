@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 import { sendAccessRequestNotification } from '@/lib/email';
 import { randomBytes } from 'crypto';
 

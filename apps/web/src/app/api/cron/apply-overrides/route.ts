@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 
 // GET /api/cron/apply-overrides — called by Vercel Cron every minute
 // Applies pending_overrides whose apply_at has passed

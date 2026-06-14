@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 import type { Database } from './types';
 
 export function isSupabaseConfigured() {
@@ -33,6 +34,22 @@ export async function createClient() {
       },
     }
   );
+}
+
+// Returns null instead of throwing when not authenticated — use in API routes
+export async function getAuthenticatedUser() {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+// Standard 401 response for API routes
+export function unauthorized() {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 
 export function createServiceClient() {

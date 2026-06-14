@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 import type { Database } from '@/lib/supabase/types';
 
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];

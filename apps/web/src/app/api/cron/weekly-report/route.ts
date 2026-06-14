@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 import { sendWeeklyReport } from '@/lib/email';
 
 // GET /api/cron/weekly-report — called by Vercel Cron every Monday 08:00 UTC

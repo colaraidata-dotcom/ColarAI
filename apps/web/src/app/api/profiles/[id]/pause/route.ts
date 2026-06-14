@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 
 // POST /api/profiles/[id]/pause
 // Body: { pause_minutes?: number }  — omit to pause indefinitely, 0 to unpause
