@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const AUTH_PATHS = ['/sign-in', '/sign-up'];
-const PROTECTED_PREFIXES = ['/dashboard', '/profiles', '/reports', '/notifications', '/settings'];
+const PROTECTED_PREFIXES = ['/dashboard', '/profiles', '/reports', '/notifications', '/settings', '/onboarding'];
 
 export async function middleware(request: NextRequest) {
   // In production, fail closed when Supabase isn't configured
@@ -61,6 +61,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api/auth/callback|api/device|api/dns|api/access-requests).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/auth/callback|api/device|api/dns|api/access-requests|api/stripe/webhook).*)',
   ],
 };

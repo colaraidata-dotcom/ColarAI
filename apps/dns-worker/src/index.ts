@@ -16,6 +16,7 @@ interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_KEY: string;
   DNS_CACHE: KVNamespace;
+  AI: Ai;
 }
 
 // Content categories mapped to common domain patterns (simplified)
@@ -36,6 +37,34 @@ function categorizeDomain(domain: string): string | null {
     if (patterns.some((p) => p.test(domain))) return category;
   }
   return null;
+}
+
+const VALID_CATEGORIES = new Set(Object.keys(CATEGORY_PATTERNS));
+
+async function aiCategorizeDomain(env: Env, domain: string): Promise<string | null> {
+  const cacheKey = `ai_cat:${domain}`;
+  const cached = await env.DNS_CACHE.get(cacheKey);
+  if (cached !== null) return cached === '' ? null : cached;
+
+  try {
+    const resp = await (env.AI as any).run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        {
+          role: 'system',
+          content: `You are a domain content classifier. Classify the given domain into exactly one of these categories: ${[...VALID_CATEGORIES].join(', ')}. If none fit, respond with "unknown". Respond with only the category name, no explanation.`,
+        },
+        { role: 'user', content: domain },
+      ],
+      max_tokens: 10,
+    });
+    const text = (resp as { response?: string })?.response?.trim().toLowerCase() ?? '';
+    const category = VALID_CATEGORIES.has(text) ? text : null;
+    // Cache AI result for 24h to avoid repeated inference costs
+    await env.DNS_CACHE.put(cacheKey, category ?? '', { expirationTtl: 86400 });
+    return category;
+  } catch {
+    return null;
+  }
 }
 
 function extractDomainFromDnsQuery(body: ArrayBuffer): string | null {
@@ -110,18 +139,30 @@ async function logDecision(env: Env, opts: {
   });
 }
 
-async function getDeviceProfile(env: Env, deviceToken: string) {
+interface Schedule {
+  start_time: string; // "HH:MM"
+  end_time: string;   // "HH:MM"
+  days: string[];     // ["mon","tue",...]
+  action: 'block_all' | 'allow_all';
+  is_active: boolean;
+}
+
+interface DeviceProfile {
+  device_id: string;
+  profile_id: string | null;
+  daily_limit_minutes: number | null;
+  rules: Array<{ category: string; action: string }>;
+  overrides: Array<{ domain: string; action: string }>;
+  schedules: Schedule[];
+}
+
+async function getDeviceProfile(env: Env, deviceToken: string): Promise<DeviceProfile | null> {
   const cacheKey = `device:${deviceToken}`;
-  const cached = await env.DNS_CACHE.get(cacheKey, 'json') as {
-    device_id: string;
-    profile_id: string | null;
-    rules: Array<{ category: string; action: string }>;
-    overrides: Array<{ domain: string; action: string }>;
-  } | null;
+  const cached = await env.DNS_CACHE.get(cacheKey, 'json') as DeviceProfile | null;
   if (cached) return cached;
 
   const resp = await fetch(
-    `${env.SUPABASE_URL}/rest/v1/devices?device_token=eq.${encodeURIComponent(deviceToken)}&select=id,profile_id,profiles(content_rules(*),site_overrides(*))`,
+    `${env.SUPABASE_URL}/rest/v1/devices?device_token=eq.${encodeURIComponent(deviceToken)}&select=id,profile_id,profiles(daily_limit_minutes,content_rules(*),site_overrides(*),schedules(*))`,
     {
       headers: {
         'apikey': env.SUPABASE_SERVICE_KEY,
@@ -136,11 +177,13 @@ async function getDeviceProfile(env: Env, deviceToken: string) {
   const device = rows[0];
   const profile = device.profiles;
 
-  const result = {
+  const result: DeviceProfile = {
     device_id: device.id as string,
     profile_id: device.profile_id as string | null,
+    daily_limit_minutes: profile?.daily_limit_minutes ?? null,
     rules: (profile?.content_rules ?? []) as Array<{ category: string; action: string }>,
     overrides: (profile?.site_overrides ?? []) as Array<{ domain: string; action: string }>,
+    schedules: (profile?.schedules ?? []) as Schedule[],
   };
 
   // Cache profile for 60 seconds
@@ -148,15 +191,62 @@ async function getDeviceProfile(env: Env, deviceToken: string) {
   return result;
 }
 
-function shouldBlock(domain: string, rules: Array<{ category: string; action: string }>, overrides: Array<{ domain: string; action: string }>): { block: boolean; category: string | null } {
+const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+function getActiveScheduleAction(schedules: Schedule[], now: Date): 'block_all' | 'allow_all' | null {
+  const dayName = DAY_NAMES[now.getUTCDay()];
+  const hhmm = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}`;
+
+  for (const s of schedules) {
+    if (!s.is_active) continue;
+    if (!s.days.includes(dayName)) continue;
+    // Handle overnight windows (e.g. 22:00–06:00)
+    const inWindow = s.start_time <= s.end_time
+      ? hhmm >= s.start_time && hhmm < s.end_time
+      : hhmm >= s.start_time || hhmm < s.end_time;
+    if (inWindow) return s.action;
+  }
+  return null;
+}
+
+async function isDailyLimitExceeded(env: Env, profileId: string, limitMinutes: number): Promise<boolean> {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const key = `daily:${profileId}:${today}`;
+  const raw = await env.DNS_CACHE.get(key);
+  const count = raw ? parseInt(raw, 10) : 0;
+  // 1 DNS query ≈ 3 seconds of activity → limit_minutes * 20 queries ≈ limit_minutes of browsing
+  return count >= limitMinutes * 20;
+}
+
+async function incrementDailyUsage(env: Env, profileId: string): Promise<void> {
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `daily:${profileId}:${today}`;
+  const raw = await env.DNS_CACHE.get(key);
+  const count = (raw ? parseInt(raw, 10) : 0) + 1;
+  // TTL of 2 days so stale keys auto-expire
+  await env.DNS_CACHE.put(key, String(count), { expirationTtl: 172800 });
+}
+
+async function shouldBlock(
+  env: Env,
+  domain: string,
+  rules: Array<{ category: string; action: string }>,
+  overrides: Array<{ domain: string; action: string }>
+): Promise<{ block: boolean; category: string | null }> {
   // Check site overrides first (highest priority)
   const override = overrides.find((o) => domain === o.domain || domain.endsWith(`.${o.domain}`));
   if (override) {
     return { block: override.action === 'block', category: null };
   }
 
-  // Check category rules
-  const category = categorizeDomain(domain);
+  // Pattern-based categorization first (fast, no API cost)
+  let category = categorizeDomain(domain);
+
+  // If uncategorized and AI is bound, try AI classification
+  if (!category && rules.length > 0 && env.AI) {
+    category = await aiCategorizeDomain(env, domain);
+  }
+
   if (category) {
     const rule = rules.find((r) => r.category === category);
     if (rule?.action === 'block') {
@@ -201,7 +291,29 @@ export default {
       return new Response(upstream, { headers: { 'Content-Type': 'application/dns-message' } });
     }
 
-    const { block, category } = shouldBlock(domain, deviceProfile.rules, deviceProfile.overrides);
+    const now = new Date();
+
+    // Schedule enforcement — check time-based rules first
+    const scheduleAction = getActiveScheduleAction(deviceProfile.schedules, now);
+    if (scheduleAction === 'block_all') {
+      void logDecision(env, { device_id: deviceProfile.device_id, profile_id: deviceProfile.profile_id, domain, action: 'blocked', category: 'schedule' });
+      return new Response(buildNxDomainResponse(queryId), { headers: { 'Content-Type': 'application/dns-message' } });
+    }
+
+    // Daily limit enforcement
+    if (deviceProfile.profile_id && deviceProfile.daily_limit_minutes) {
+      const exceeded = await isDailyLimitExceeded(env, deviceProfile.profile_id, deviceProfile.daily_limit_minutes);
+      if (exceeded) {
+        void logDecision(env, { device_id: deviceProfile.device_id, profile_id: deviceProfile.profile_id, domain, action: 'blocked', category: 'daily_limit' });
+        return new Response(buildNxDomainResponse(queryId), { headers: { 'Content-Type': 'application/dns-message' } });
+      }
+    }
+
+    // schedule allow_all overrides category rules (but site overrides still win)
+    const forceAllow = scheduleAction === 'allow_all';
+    const { block, category } = forceAllow
+      ? { block: false, category: null }
+      : await shouldBlock(env, domain, deviceProfile.rules, deviceProfile.overrides);
 
     // Log asynchronously (don't block the DNS response)
     void logDecision(env, {
@@ -216,6 +328,11 @@ export default {
       return new Response(buildNxDomainResponse(queryId), {
         headers: { 'Content-Type': 'application/dns-message' },
       });
+    }
+
+    // Increment daily usage counter for allowed queries
+    if (deviceProfile.profile_id) {
+      void incrementDailyUsage(env, deviceProfile.profile_id);
     }
 
     const upstream = await resolveUpstream(dnsBody);

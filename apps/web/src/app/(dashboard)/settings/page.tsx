@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Shield, CreditCard, Bell, Smartphone } from 'lucide-react';
+import { useState, useEffect, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Shield, CreditCard, Bell, Smartphone, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -26,7 +27,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
       aria-checked={enabled}
       onClick={onChange}
       className={`relative h-5 w-9 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#0EA5E9] focus:ring-offset-2 focus:ring-offset-white ${
-        enabled ? 'bg-[#0EA5E9]' : 'bg-[#1E293B]'
+        enabled ? 'bg-[#0EA5E9]' : 'bg-[#CBD5E1]'
       }`}
     >
       <div
@@ -48,6 +49,9 @@ export default function SettingsPage() {
     limit_alerts: true,
     tamper_attempts: true,
   });
+  const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const upgraded = searchParams.get('upgraded') === '1';
 
   useEffect(() => {
     const supabase = createClient();
@@ -66,12 +70,39 @@ export default function SettingsPage() {
     setNotifPrefs((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
+  function handleUpgrade(plan: 'basic' | 'family') {
+    startTransition(async () => {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    });
+  }
+
+  function handleManageBilling() {
+    startTransition(async () => {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    });
+  }
+
   return (
     <div className="p-8 flex flex-col gap-8 max-w-2xl">
       <div>
         <h1 className="text-2xl font-bold text-[#0F172A]">Settings</h1>
         <p className="text-[#64748B] text-sm mt-0.5">Account and subscription settings</p>
       </div>
+
+      {upgraded && (
+        <div className="flex items-center gap-3 rounded-xl border border-[#22C55E]/20 bg-[#22C55E]/10 px-4 py-3">
+          <CheckCircle2 className="h-5 w-5 text-[#22C55E] shrink-0" />
+          <p className="text-sm font-medium text-[#15803D]">Subscription upgraded successfully. Welcome to the plan!</p>
+        </div>
+      )}
 
       {/* Account info */}
       <section>
@@ -116,7 +147,14 @@ export default function SettingsPage() {
                 {tier.price === 0 ? 'Free forever' : `$${(tier.price / 100).toFixed(2)}/mo`}
               </p>
             </div>
-            <Button size="sm">Upgrade to {nextTier.label}</Button>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => handleUpgrade('basic')} disabled={isPending}>
+                Upgrade to {nextTier.label}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleManageBilling} disabled={isPending}>
+                Manage Billing
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#DBEAFE]">
             <div>
@@ -166,7 +204,7 @@ export default function SettingsPage() {
           <h2 className="text-base font-semibold text-[#0F172A]">All Devices</h2>
         </div>
         <Card className="p-0 overflow-hidden">
-          <div className="divide-y divide-[#1A1A2E]">
+          <div className="divide-y divide-[#DBEAFE]">
             {mockDevices.map((dev) => (
               <div key={dev.id} className="flex items-center justify-between px-5 py-3">
                 <div>

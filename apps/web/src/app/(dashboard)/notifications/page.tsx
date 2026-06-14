@@ -5,7 +5,7 @@ import { Bell, AlertTriangle, CheckCircle2, BarChart3, Smartphone } from 'lucide
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { mockNotifications, mockAccessRequests } from '@guardian/shared/mock';
+import { mockNotifications } from '@guardian/shared/mock';
 import type { AppNotification } from '@guardian/shared';
 
 const TYPE_CONFIG: Record<AppNotification['type'], { icon: typeof Bell; color: string; label: string }> = {
@@ -15,6 +15,16 @@ const TYPE_CONFIG: Record<AppNotification['type'], { icon: typeof Bell; color: s
   limit_reached: { icon: CheckCircle2, color: '#22D3EE', label: 'Limit Reached' },
   tamper_attempt: { icon: AlertTriangle, color: '#EF4444', label: 'Tamper Attempt' },
 };
+
+interface AccessRequest {
+  id: string;
+  domain: string;
+  reason: string | null;
+  status: 'pending' | 'approved' | 'denied';
+  created_at: string;
+  profile_id: string | null;
+  profiles: { display_name: string; avatar_emoji: string } | null;
+}
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -38,21 +48,24 @@ function toAppNotification(n: Record<string, unknown>): AppNotification {
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [accessRequests, setAccessRequests] = useState(mockAccessRequests);
+  const [accessRequests, setAccessRequests] = useState<AccessRequest[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    fetch('/api/notifications')
-      .then((r) => r.json())
-      .then((data: unknown) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setNotifications(data.map((n) => toAppNotification(n as Record<string, unknown>)));
-        } else {
-          setNotifications(mockNotifications);
-        }
-      })
-      .catch(() => setNotifications(mockNotifications))
-      .finally(() => setLoaded(true));
+    Promise.all([
+      fetch('/api/notifications').then((r) => r.json()).catch(() => []),
+      fetch('/api/access-requests').then((r) => r.json()).catch(() => []),
+    ]).then(([notifData, reqData]) => {
+      if (Array.isArray(notifData) && notifData.length > 0) {
+        setNotifications(notifData.map((n) => toAppNotification(n as Record<string, unknown>)));
+      } else {
+        setNotifications(mockNotifications);
+      }
+      if (Array.isArray(reqData)) {
+        setAccessRequests(reqData as AccessRequest[]);
+      }
+      setLoaded(true);
+    });
   }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -62,7 +75,7 @@ export default function NotificationsPage() {
     fetch('/api/notifications/mark-read', { method: 'POST' }).catch(() => {});
   }
 
-  function handleRequest(id: string, action: 'approved' | 'rejected') {
+  function handleRequest(id: string, action: 'approved' | 'denied') {
     setAccessRequests((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: action } : r))
     );
@@ -72,7 +85,7 @@ export default function NotificationsPage() {
     fetch('/api/access-requests', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: action === 'approved' ? 'approved' : 'denied' }),
+      body: JSON.stringify({ id, status: action }),
     }).catch(() => {});
   }
 
@@ -112,18 +125,18 @@ export default function NotificationsPage() {
               <Card key={req.id} className="flex items-center justify-between gap-4 border-[#F59E0B]/20 bg-[#F59E0B]/5">
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 rounded-full bg-[#F59E0B]/20 flex items-center justify-center text-lg shrink-0">
-                    {req.profileEmoji}
+                    {req.profiles?.avatar_emoji ?? '👤'}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-[#0F172A]">
-                      {req.profileName} — <span className="font-mono">{req.siteName}</span>
+                      {req.profiles?.display_name ?? 'Unknown'} — <span className="font-mono">{req.domain}</span>
                     </p>
-                    {req.note && <p className="text-xs text-[#64748B] mt-0.5">&ldquo;{req.note}&rdquo;</p>}
-                    <p className="text-xs text-[#94A3B8] mt-0.5">{timeAgo(req.requestedAt)}</p>
+                    {req.reason && <p className="text-xs text-[#64748B] mt-0.5">&ldquo;{req.reason}&rdquo;</p>}
+                    <p className="text-xs text-[#94A3B8] mt-0.5">{timeAgo(req.created_at)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="danger" size="sm" onClick={() => handleRequest(req.id, 'rejected')}>
+                  <Button variant="danger" size="sm" onClick={() => handleRequest(req.id, 'denied')}>
                     Deny
                   </Button>
                   <Button size="sm" onClick={() => handleRequest(req.id, 'approved')}>
@@ -143,7 +156,7 @@ export default function NotificationsPage() {
           <Card className="py-12 text-center text-sm text-[#94A3B8]">No notifications yet.</Card>
         ) : (
           <Card className="p-0 overflow-hidden">
-            <div className="divide-y divide-[#1A1A2E]">
+            <div className="divide-y divide-[#DBEAFE]">
               {notifications.map((notif) => {
                 const cfg = TYPE_CONFIG[notif.type];
                 const Icon = cfg?.icon ?? Bell;

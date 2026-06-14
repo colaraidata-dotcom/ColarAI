@@ -1,7 +1,20 @@
 import { Redirect } from 'expo-router';
+import { useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { useAuthStore } from '../store/auth';
 
 export default function Index() {
-  // Auth kontrolü burada yapılacak (Clerk). MVP'de direkt dashboard'a yönlendir.
-  const isAuthenticated = true;
-  return <Redirect href={isAuthenticated ? '/(tabs)' : '/(auth)/welcome'} />;
+  const { user, isLoading, initialize } = useAuthStore();
+
+  useEffect(() => { initialize(); }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F5F8FF', alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color="#0EA5E9" />
+      </View>
+    );
+  }
+
+  return <Redirect href={user ? '/(tabs)' : '/(auth)/welcome'} />;
 }

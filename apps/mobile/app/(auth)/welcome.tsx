@@ -51,13 +51,13 @@ export default function WelcomeScreen() {
         <View style={styles.ctas}>
           <TouchableOpacity
             style={styles.primaryBtn}
-            onPress={() => router.replace('/(tabs)')}
+            onPress={() => router.push('/(auth)/sign-up')}
           >
             <Text style={styles.primaryBtnText}>Başla</Text>
             <Ionicons name="arrow-forward" size={18} color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.replace('/(tabs)')}>
+          <TouchableOpacity style={styles.secondaryBtn} onPress={() => router.push('/(auth)/sign-in')}>
             <Text style={styles.secondaryBtnText}>Hesabım var, giriş yap</Text>
           </TouchableOpacity>
         </View>

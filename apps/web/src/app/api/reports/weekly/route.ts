@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sendWeeklyReport } from '@/lib/email';
 
 export async function GET() {
   const supabase = await createClient();
@@ -69,4 +70,57 @@ export async function GET() {
         pct: totalRequests > 0 ? Math.round((count / totalRequests) * 100) : 0,
       })),
   });
+}
+
+// Trigger weekly report email for the authenticated user
+export async function POST() {
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json({ error: 'Email not configured' }, { status: 503 });
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !user.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { data: settings } = await supabase
+    .from('account_settings')
+    .select('display_name')
+    .eq('id', user.id)
+    .single();
+
+  // Reuse GET logic — fetch top blocked domains this week
+  const { data: profiles } = await supabase.from('profiles').select('id').eq('account_id', user.id);
+  const profileIds = (profiles ?? []).map((p) => p.id);
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data: logs } = await supabase
+    .from('access_logs')
+    .select('action, domain')
+    .in('profile_id', profileIds)
+    .gte('created_at', sevenDaysAgo.toISOString());
+
+  const totalAllowed = logs?.filter((l) => l.action === 'allowed').length ?? 0;
+  const totalBlocked = logs?.filter((l) => l.action === 'blocked').length ?? 0;
+
+  const domainCount: Record<string, number> = {};
+  logs?.filter((l) => l.action === 'blocked' && l.domain).forEach((l) => {
+    domainCount[l.domain!] = (domainCount[l.domain!] ?? 0) + 1;
+  });
+  const topBlocked = Object.entries(domainCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([domain, count]) => ({ domain, count }));
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://guardian.io';
+  await sendWeeklyReport({
+    to: user.email,
+    displayName: settings?.display_name ?? user.email,
+    topBlocked,
+    totalAllowed,
+    totalBlocked,
+    dashboardUrl: `${appUrl}/dashboard`,
+  });
+
+  return NextResponse.json({ ok: true });
 }

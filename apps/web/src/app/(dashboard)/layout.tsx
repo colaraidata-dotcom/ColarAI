@@ -1,16 +1,19 @@
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/server';
 import { Sidebar } from './Sidebar';
+import { NotificationListener } from '@/components/NotificationListener';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   let displayName = 'Demo User';
   let userEmail = '';
   let tier = 'free';
+  let userId = '';
 
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
+      userId = user.id;
       displayName = user.email ?? 'User';
       userEmail = user.email ?? '';
       const { data: settings } = await supabase
@@ -29,6 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <main className="flex-1 overflow-auto">
         {children}
       </main>
+      {userId && <NotificationListener userId={userId} />}
     </div>
   );
 }
