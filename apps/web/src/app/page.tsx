@@ -2,6 +2,7 @@ import { Navbar } from '@/components/ui/Navbar';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { StatsSection } from '@/components/sections/StatsSection';
 import { CustomerJourneySection } from '@/components/sections/CustomerJourneySection';
+import { ParentControlSection } from '@/components/sections/ParentControlSection';
 import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
 import { ProfilesSection } from '@/components/sections/ProfilesSection';
 import { FeaturesSection } from '@/components/sections/FeaturesSection';
@@ -19,6 +20,7 @@ export default function Home() {
         <HeroSection />
         <StatsSection />
         <CustomerJourneySection />
+        <ParentControlSection />
         <HowItWorksSection />
         <ProfilesSection />
         <FeaturesSection />
