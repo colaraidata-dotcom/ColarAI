@@ -1,5 +1,37 @@
 # Guardian — Proje Geçmişi
 
+> **YENİ SESSION BAŞLANGICI — BURADAN OKU**
+>
+> Bu dosya, her terminal oturumu kapandığında bağlamı geri kazanmak için hazırlandı.
+> Claude bu dosyayı okuyarak tam bağlamı 1 dakikada yakalar.
+
+---
+
+## Şu Anki Durum (Son Güncelleme: 2026-06-14)
+
+| Katman | URL / Ref | Durum |
+|--------|-----------|-------|
+| Web App (Vercel) | `https://guardian-fd0cs99tb-colarai.vercel.app` | ✅ Canlı |
+| Supabase | ref: `szyuvymdilnxbjzcpmkt` | ✅ Canlı |
+| GitHub | `github.com/Talip88/Guardian`, `main` branch | ✅ Aktif |
+| DNS Worker | `guardian-dns-worker.talipclk1988.workers.dev` | ✅ Canlı |
+| Mobile (Expo) | Ekranlar hazır, Supabase env eksik | ⏳ Bekliyor |
+
+### Bekleyen İşler (öncelik sırasıyla)
+1. **Mobile env** → `apps/mobile/.env` dosyasına Supabase URL + anon key ekle
+2. **Langfuse** → `cloud.langfuse.com`'dan key al → `.env` dosyasına ekle
+3. **GitHub Secret** → repo Settings → Secrets → `CLAUDE_API_KEY` ekle (security-review Action için)
+4. **Custom domain** → Vercel dashboard'dan bağla
+5. **Email sender** → Supabase Auth → SMTP → Sender name: "Guardian"
+
+### Kritik Bilgiler
+- Supabase schema: `supabase/schema.sql` — **zaten çalıştırıldı**, tekrar çalıştırma
+- Vercel build config: `apps/web/vercel.json`
+- DNS Worker deploy adımları: bu dosyanın Bölüm 4 (DNS Worker) kısmı + `BACKEND_SETUP.md`
+- E2E testler: `npx playwright test` — 27/27 geçiyor (web app)
+
+---
+
 Bu belge, Guardian projesinde başından itibaren yapılan tüm çalışmaları özetler.
 
 ---
@@ -225,13 +257,50 @@ Sitenin müşteriye ne sunduğunun anlaşılmaması üzerine:
 
 ## Bekleyen İşler
 
-| Görev | Öncelik | Not |
-|---|---|---|
-| Cloudflare DNS Worker deploy | Yüksek | `wrangler deploy` — Cloudflare hesabı açılınca yapılacak |
-| Mobile app Supabase bağlantısı | Orta | `.env` dosyasına `EXPO_PUBLIC_SUPABASE_*` eklenecek |
-| Şifre sıfırlama e-postası adı | Düşük | Supabase dashboard → Auth → SMTP → Sender name: "Guardian" |
-| Custom domain | Düşük | Vercel'de bağlanacak |
-| Mobile app Expo Go uyumu | Düşük | SDK 56 + Expo Go versiyonu eşleşince test |
+| Görev | Öncelik | Durum | Not |
+|---|---|---|---|
+| Cloudflare DNS Worker deploy | Yüksek | ✅ | `guardian-dns-worker.talipclk1988.workers.dev` — canlı, 405/401 doğrulandı |
+| Mobile app Supabase bağlantısı | Orta | ⏳ | `apps/mobile/.env` → `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY` |
+| Şifre sıfırlama e-postası adı | Düşük | ⏳ | Supabase dashboard → Auth → SMTP → Sender name: "Guardian" |
+| Custom domain | Düşük | ⏳ | Vercel dashboard → Domains |
+| Mobile app Expo Go uyumu | Düşük | ⏳ | SDK 53 + Expo Go versiyonu eşleşince test |
+
+---
+
+---
+
+### 12. Agent Takımı + Langfuse Kurulumu (2026-06-14)
+
+Rehber: `Guardian_Agent_Team_Rehberi.docx`
+
+**Oluşturulan dosyalar:**
+
+| Dosya | Açıklama |
+|---|---|
+| `CLAUDE.md` | Orchestrator ana beyin — Claude Code her açılışta okur |
+| `agents/00_LEAD_DEVELOPER.md` | Lead Developer — sprint koordinasyonu |
+| `agents/01_SENIOR_DEVELOPER.md` | Senior Developer — DNS Worker, backend API |
+| `agents/02_CYBERSECURITY_EXPERT.md` | Cybersecurity Expert — TRACE döngüsü, tarama |
+| `agents/03_TESTER.md` | Tester — enforcement, PIN, profil testleri |
+| `agents/04_RESEARCHER.md` | Researcher — CVE takibi, rakip analiz |
+| `agents/05_REVIEWER.md` | Reviewer — PR review, kırmızı çizgi kontrolü |
+| `security/scan-instructions.txt` | Guardian'a özel güvenlik tarama talimatları |
+| `security/false-positive-filter.txt` | False positive filtresi |
+| `security/threat-model.md` | Tehdit modeli — kritik yüzeyler |
+| `.github/workflows/security-review.yml` | Her PR'da otomatik Anthropic security review |
+| `scripts/langfuse-sync.ts` | Agent log'larını Langfuse'a gönderir |
+| `.claude/mcp_settings.json` | MCP filesystem bağlantısı |
+
+**Referans repolar (02_CYBERSECURITY_EXPERT.md'de belgelenmiş):**
+- `anthropics/claude-code-security-review` → GitHub Action + tarama kategorileri
+- `aliasrobotics/cai` → TRACE döngüsü, security orchestration
+- `ElNiak/awesome-ai-cybersecurity` → araç kataloğu
+
+**Langfuse:** `package.json`'a eklendi (`langfuse ^3.38.20`)
+
+**Kalan adımlar:**
+- `cloud.langfuse.com` → proje oluştur → key'leri `.env`'e ekle
+- GitHub repo → Settings → Secrets → `CLAUDE_API_KEY` ekle
 
 ---
 

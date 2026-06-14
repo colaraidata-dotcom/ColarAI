@@ -1,7 +1,11 @@
 {
   "name": "guardian-monorepo",
   "private": true,
-  "workspaces": ["apps/web", "apps/dns-worker", "packages/*"],
+  "workspaces": [
+    "apps/web",
+    "apps/dns-worker",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo dev",
     "dev:web": "turbo dev --filter=@guardian/web",
@@ -12,6 +16,7 @@
     "clean": "turbo clean && rm -rf node_modules"
   },
   "dependencies": {
+    "langfuse": "^3.38.20",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

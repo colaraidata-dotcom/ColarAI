@@ -1,0 +1,11 @@
+Skip the following as known false positives or out-of-scope:
+
+- node_modules/ — third-party code, not audited here
+- test-results/ — test artifacts
+- .next/ — Next.js build output
+- dist/ — compiled output
+- *.test.ts, *.spec.ts — test files with intentional edge cases
+- mock data and fixtures — not production paths
+- Playwright test files — intentional unsafe patterns for testing
+- supabase/schema.sql comments — documentation only
+- DNS NXDOMAIN response builder — intentional low-level binary, not injection risk
