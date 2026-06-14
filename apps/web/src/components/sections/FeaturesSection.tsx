@@ -71,32 +71,34 @@ export function FeaturesSection() {
             return (
               <div
                 key={f.title}
-                className={`group grid grid-cols-[80px_1fr_2fr] gap-8 py-8 items-start ${
-                  !isLast ? 'border-b border-[#DBEAFE]' : ''
-                }`}
+                className={`group py-6 md:py-8 ${!isLast ? 'border-b border-[#DBEAFE]' : ''}`}
               >
-                {/* Number */}
-                <span className="text-sm font-mono text-[#BFDBFE] font-bold pt-0.5 group-hover:text-[#0EA5E9] transition-colors">
-                  {f.num}
-                </span>
+                {/* Mobile: stack — Desktop: 3-column grid */}
+                <div className="flex flex-col gap-2 md:grid md:grid-cols-[80px_1fr_2fr] md:gap-8 md:items-start">
+                  {/* Number — desktop only */}
+                  <span className="hidden md:block text-sm font-mono text-[#BFDBFE] font-bold pt-0.5 group-hover:text-[#0EA5E9] transition-colors">
+                    {f.num}
+                  </span>
 
-                {/* Icon + Title */}
-                <div className="flex items-start gap-3">
-                  <div
-                    className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                    style={{ background: f.color + '18' }}
-                  >
-                    <Icon className="h-4.5 w-4.5" style={{ color: f.color }} />
+                  {/* Icon + Title */}
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: f.color + '18' }}
+                    >
+                      <Icon className="h-[18px] w-[18px]" style={{ color: f.color }} />
+                    </div>
+                    <h3 className="text-base font-semibold text-[#0F172A] leading-tight">
+                      <span className="text-xs font-mono text-[#BFDBFE] mr-1.5 md:hidden">{f.num}</span>
+                      {f.title}
+                    </h3>
                   </div>
-                  <h3 className="text-base font-semibold text-[#0F172A] leading-tight pt-1.5">
-                    {f.title}
-                  </h3>
-                </div>
 
-                {/* Description */}
-                <p className="text-[#94A3B8] leading-relaxed text-sm pt-1.5 group-hover:text-[#475569] transition-colors">
-                  {f.description}
-                </p>
+                  {/* Description */}
+                  <p className="text-[#94A3B8] leading-relaxed text-sm pl-12 md:pl-0 md:pt-1.5 group-hover:text-[#475569] transition-colors">
+                    {f.description}
+                  </p>
+                </div>
               </div>
             );
           })}

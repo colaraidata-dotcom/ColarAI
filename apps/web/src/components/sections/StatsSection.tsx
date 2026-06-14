@@ -9,9 +9,9 @@ export function StatsSection() {
   return (
     <section className="py-16">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#DBEAFE] border border-[#DBEAFE] rounded-2xl overflow-hidden bg-white">
-          {stats.map((s, i) => (
-            <div key={s.label} className={`px-8 py-8 ${i < stats.length - 1 ? '' : ''}`}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#DBEAFE] border border-[#DBEAFE] rounded-2xl overflow-hidden">
+          {stats.map((s) => (
+            <div key={s.label} className="px-6 py-7 md:px-8 md:py-8 bg-white">
               <p
                 className="text-4xl font-bold mb-1 tabular-nums"
                 style={{

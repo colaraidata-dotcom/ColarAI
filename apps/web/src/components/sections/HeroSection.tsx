@@ -211,7 +211,7 @@ export function HeroSection() {
         </div>
 
         {/* Product screenshot — 3D perspective tilt */}
-        <div style={{ perspective: '1400px' }}>
+        <div className="overflow-x-auto -mx-6 px-6 sm:overflow-visible sm:mx-0 sm:px-0" style={{ perspective: '1400px' }}>
           <div
             style={{
               transform: 'rotateX(7deg) scale(0.97)',
