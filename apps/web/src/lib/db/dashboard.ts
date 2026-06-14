@@ -30,9 +30,13 @@ export async function getDashboardStats() {
 
 export async function getRecentNotifications(limit = 5) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
   const { data, error } = await supabase
     .from('notifications')
-    .select('*')
+    .select('id, type, title, body, is_read, related_id, created_at')
+    .eq('account_id', user.id)
     .order('created_at', { ascending: false })
     .limit(limit);
 
