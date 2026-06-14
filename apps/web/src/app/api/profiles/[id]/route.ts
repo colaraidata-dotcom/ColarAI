@@ -14,7 +14,7 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { display_name, avatar_emoji, avatar_color, is_active } = body;
+  const { display_name, avatar_emoji, avatar_color, is_active, override_delay_minutes } = body;
 
   const updates: ProfileUpdate = {};
   if (display_name !== undefined) {
@@ -26,6 +26,13 @@ export async function PATCH(
   if (avatar_emoji !== undefined) updates.avatar_emoji = String(avatar_emoji);
   if (avatar_color !== undefined) updates.avatar_color = String(avatar_color);
   if (is_active !== undefined) updates.is_active = Boolean(is_active);
+  if (override_delay_minutes !== undefined) {
+    const delay = Number(override_delay_minutes);
+    if (!Number.isInteger(delay) || delay < 0 || delay > 60) {
+      return NextResponse.json({ error: 'override_delay_minutes must be 0–60' }, { status: 400 });
+    }
+    updates.override_delay_minutes = delay;
+  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });

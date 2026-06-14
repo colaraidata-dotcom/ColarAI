@@ -51,6 +51,9 @@ export interface Database {
           avatar_emoji: string
           avatar_color: string
           is_active: boolean
+          is_paused: boolean
+          pause_until: string | null
+          override_delay_minutes: number
           daily_limit_minutes: number | null
           created_at: string
           updated_at: string
@@ -63,6 +66,9 @@ export interface Database {
           avatar_emoji?: string
           avatar_color?: string
           is_active?: boolean
+          is_paused?: boolean
+          pause_until?: string | null
+          override_delay_minutes?: number
           daily_limit_minutes?: number | null
           created_at?: string
           updated_at?: string
@@ -73,8 +79,37 @@ export interface Database {
           avatar_emoji?: string
           avatar_color?: string
           is_active?: boolean
+          is_paused?: boolean
+          pause_until?: string | null
+          override_delay_minutes?: number
           daily_limit_minutes?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      pending_overrides: {
+        Row: {
+          id: string
+          profile_id: string
+          category: string
+          new_action: RuleAction
+          new_daily_limit_minutes: number | null
+          apply_at: string
+          applied: boolean
+          created_at: string
+        }
+        Insert: {
+          id: string
+          profile_id: string
+          category: string
+          new_action: RuleAction
+          new_daily_limit_minutes?: number | null
+          apply_at: string
+          applied?: boolean
+          created_at?: string
+        }
+        Update: {
+          applied?: boolean
         }
         Relationships: []
       }

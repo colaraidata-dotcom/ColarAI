@@ -151,6 +151,8 @@ interface DeviceProfile {
   device_id: string;
   profile_id: string | null;
   daily_limit_minutes: number | null;
+  is_paused: boolean;
+  pause_until: string | null;
   rules: Array<{ category: string; action: string }>;
   overrides: Array<{ domain: string; action: string }>;
   schedules: Schedule[];
@@ -181,6 +183,8 @@ async function getDeviceProfile(env: Env, deviceToken: string): Promise<DevicePr
     device_id: device.id as string,
     profile_id: device.profile_id as string | null,
     daily_limit_minutes: profile?.daily_limit_minutes ?? null,
+    is_paused: profile?.is_paused ?? false,
+    pause_until: profile?.pause_until ?? null,
     rules: (profile?.content_rules ?? []) as Array<{ category: string; action: string }>,
     overrides: (profile?.site_overrides ?? []) as Array<{ domain: string; action: string }>,
     schedules: (profile?.schedules ?? []) as Schedule[],
@@ -292,6 +296,14 @@ export default {
     }
 
     const now = new Date();
+
+    // Pause Internet — highest priority check
+    const pauseActive = deviceProfile.is_paused &&
+      (!deviceProfile.pause_until || new Date(deviceProfile.pause_until) > now);
+    if (pauseActive) {
+      void logDecision(env, { device_id: deviceProfile.device_id, profile_id: deviceProfile.profile_id, domain, action: 'blocked', category: 'paused' });
+      return new Response(buildNxDomainResponse(queryId), { headers: { 'Content-Type': 'application/dns-message' } });
+    }
 
     // Schedule enforcement — check time-based rules first
     const scheduleAction = getActiveScheduleAction(deviceProfile.schedules, now);

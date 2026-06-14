@@ -3,5 +3,15 @@
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && npm install --legacy-peer-deps",
   "framework": "nextjs",
-  "regions": ["fra1"]
+  "regions": ["fra1"],
+  "crons": [
+    {
+      "path": "/api/cron/weekly-report",
+      "schedule": "0 8 * * 1"
+    },
+    {
+      "path": "/api/cron/apply-overrides",
+      "schedule": "* * * * *"
+    }
+  ]
 }
