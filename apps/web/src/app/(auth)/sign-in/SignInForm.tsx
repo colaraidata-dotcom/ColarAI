@@ -35,7 +35,7 @@ export function SignInForm({ next }: { next?: string }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="email">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="email">
           Email
         </label>
         <input
@@ -45,12 +45,12 @@ export function SignInForm({ next }: { next?: string }) {
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="h-11 rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+          className="h-11 rounded-xl border border-[#DBEAFE] bg-white px-4 text-sm text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="password">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="password">
           Password
         </label>
         <div className="relative">
@@ -61,12 +61,12 @@ export function SignInForm({ next }: { next?: string }) {
             required
             autoComplete="current-password"
             placeholder="••••••••"
-            className="h-11 w-full rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 pr-11 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+            className="h-11 w-full rounded-xl border border-[#DBEAFE] bg-white px-4 pr-11 text-sm text-[#0F172A] placeholder:text-[#94A3B8] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#94A3B8] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#475569] transition-colors"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -74,7 +74,7 @@ export function SignInForm({ next }: { next?: string }) {
       </div>
 
       {error && (
-        <p className="text-sm text-[#EF4444]">{error}</p>
+        <p className="text-sm text-[#B91C1C]">{error}</p>
       )}
 
       <Button type="submit" disabled={isPending} className="h-11 mt-2">

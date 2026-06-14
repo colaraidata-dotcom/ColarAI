@@ -74,13 +74,13 @@ export default function NewProfilePage() {
       <div>
         <Link
           href="/profiles"
-          className="flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#F1F5F9] mb-4 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0F172A] mb-4 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Profiles
         </Link>
-        <h1 className="text-2xl font-bold text-[#F1F5F9]">New Profile</h1>
-        <p className="text-[#94A3B8] text-sm mt-0.5">Create a profile and assign devices to it.</p>
+        <h1 className="text-2xl font-bold text-[#0F172A]">New Profile</h1>
+        <p className="text-[#64748B] text-sm mt-0.5">Create a profile and assign devices to it.</p>
       </div>
 
       {/* Avatar & Color */}
@@ -94,7 +94,7 @@ export default function NewProfilePage() {
           </div>
           <div className="flex flex-col gap-3">
             <div>
-              <p className="text-xs font-medium text-[#64748B] mb-2">Avatar</p>
+              <p className="text-xs font-medium text-[#94A3B8] mb-2">Avatar</p>
               <div className="flex flex-wrap gap-2">
                 {AVATARS.map((em) => (
                   <button
@@ -104,7 +104,7 @@ export default function NewProfilePage() {
                     className={`h-9 w-9 rounded-lg text-lg transition-all ${
                       avatar === em
                         ? 'ring-2 ring-[#0EA5E9] bg-[#0EA5E9]/15'
-                        : 'bg-[#111120] border border-[#1A1A2E] hover:border-[#0EA5E9]/40'
+                        : 'bg-white border border-[#DBEAFE] hover:border-[#0EA5E9]/40'
                     }`}
                   >
                     {em}
@@ -113,7 +113,7 @@ export default function NewProfilePage() {
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-[#64748B] mb-2">Color</p>
+              <p className="text-xs font-medium text-[#94A3B8] mb-2">Color</p>
               <div className="flex gap-2">
                 {COLORS.map((c) => (
                   <button
@@ -136,7 +136,7 @@ export default function NewProfilePage() {
 
       {/* Name */}
       <Card className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="name">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="name">
           Profile name
         </label>
         <input
@@ -146,14 +146,14 @@ export default function NewProfilePage() {
           onChange={(e) => setName(e.target.value)}
           maxLength={32}
           placeholder="e.g. Emma, Work laptop…"
-          className="h-11 rounded-xl border border-[#1A1A2E] bg-[#08080F] px-4 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+          className="h-11 rounded-xl border border-[#DBEAFE] bg-[#F5F8FF] px-4 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
         />
         {error && <p className="text-sm text-[#EF4444]">{error}</p>}
       </Card>
 
       {/* Profile type */}
       <Card className="flex flex-col gap-3">
-        <p className="text-sm font-medium text-[#CBD5E1]">Profile type</p>
+        <p className="text-sm font-medium text-[#334155]">Profile type</p>
         <div className="flex flex-col gap-2">
           {PROFILE_TYPES.map((pt) => (
             <button
@@ -163,15 +163,15 @@ export default function NewProfilePage() {
               className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
                 type === pt.id
                   ? 'border-[#0EA5E9] bg-[#0EA5E9]/8'
-                  : 'border-[#1A1A2E] hover:border-[#0EA5E9]/30'
+                  : 'border-[#DBEAFE] hover:border-[#0EA5E9]/30'
               }`}
             >
               <span className="text-2xl">{pt.emoji}</span>
               <div className="flex-1">
-                <p className={`font-medium ${type === pt.id ? 'text-[#F1F5F9]' : 'text-[#CBD5E1]'}`}>
+                <p className={`font-medium ${type === pt.id ? 'text-[#0F172A]' : 'text-[#334155]'}`}>
                   {pt.label}
                 </p>
-                <p className="text-xs text-[#64748B] mt-0.5">{pt.description}</p>
+                <p className="text-xs text-[#94A3B8] mt-0.5">{pt.description}</p>
               </div>
               {type === pt.id && (
                 <div className="h-5 w-5 rounded-full bg-[#0EA5E9] flex items-center justify-center shrink-0">

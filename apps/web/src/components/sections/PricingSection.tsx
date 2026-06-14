@@ -56,13 +56,13 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <section id="pricing" className="py-24 bg-[#0D0D1A]/50">
+    <section id="pricing" className="py-24 bg-[#EEF3FF]/50">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#F1F5F9] mb-4">
+          <h2 className="text-4xl font-bold text-[#0F172A] mb-4">
             Simple pricing
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-xl mx-auto">
+          <p className="text-[#475569] text-lg max-w-xl mx-auto">
             No credit card required. Cancel anytime.
           </p>
         </div>
@@ -73,8 +73,8 @@ export function PricingSection() {
               key={plan.name}
               className={`rounded-2xl border p-7 flex flex-col gap-6 ${
                 plan.highlighted
-                  ? 'border-[#0EA5E9] bg-[#0EA5E9]/5 relative'
-                  : 'border-[#1A1A2E] bg-[#111120]'
+                  ? 'border-[#0EA5E9] bg-white shadow-lg shadow-[#0EA5E9]/10 relative'
+                  : 'border-[#DBEAFE] bg-white'
               }`}
             >
               {plan.highlighted && (
@@ -86,17 +86,17 @@ export function PricingSection() {
               )}
 
               <div>
-                <p className="text-sm font-medium text-[#94A3B8] mb-2">{plan.name}</p>
+                <p className="text-sm font-medium text-[#475569] mb-2">{plan.name}</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-[#F1F5F9]">{plan.price}</span>
+                  <span className="text-4xl font-bold text-[#0F172A]">{plan.price}</span>
                   <span className="text-[#94A3B8]">/{plan.period}</span>
                 </div>
-                <p className="mt-2 text-sm text-[#94A3B8]">{plan.description}</p>
+                <p className="mt-2 text-sm text-[#475569]">{plan.description}</p>
               </div>
 
               <ul className="flex flex-col gap-2.5">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-[#CBD5E1]">
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-[#334155]">
                     <CheckCircle2 className="h-4 w-4 text-[#22C55E] shrink-0" />
                     {f}
                   </li>

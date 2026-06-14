@@ -35,7 +35,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       <div>
         <Link
           href="/profiles"
-          className="flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#F1F5F9] mb-4 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#0F172A] mb-4 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Profiles
@@ -51,8 +51,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
             {profile.avatarEmoji}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#F1F5F9]">{profile.name}</h1>
-            <p className="text-[#94A3B8] text-sm">{meta.label} — {meta.description}</p>
+            <h1 className="text-2xl font-bold text-[#0F172A]">{profile.name}</h1>
+            <p className="text-[#64748B] text-sm">{meta.label} — {meta.description}</p>
           </div>
           <Badge variant={profile.isActive ? 'success' : 'muted'} className="ml-auto self-start">
             {profile.isActive ? 'Active' : 'Inactive'}
@@ -64,7 +64,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Shield className="h-4 w-4 text-[#0EA5E9]" />
-          <h2 className="text-lg font-semibold text-[#F1F5F9]">Content Rules</h2>
+          <h2 className="text-lg font-semibold text-[#0F172A]">Content Rules</h2>
         </div>
         <Card className="p-0 overflow-hidden">
           <div className="divide-y divide-[#1A1A2E]">
@@ -82,13 +82,13 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                       {cat.labelEn.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#F1F5F9]">{cat.label}</p>
-                      <p className="text-xs text-[#64748B]">{cat.description}</p>
+                      <p className="text-sm font-medium text-[#0F172A]">{cat.label}</p>
+                      <p className="text-xs text-[#94A3B8]">{cat.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {rule?.dailyLimitMinutes && (
-                      <span className="text-xs text-[#94A3B8]">
+                      <span className="text-xs text-[#64748B]">
                         Max {rule.dailyLimitMinutes}m/day
                       </span>
                     )}
@@ -106,14 +106,14 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Clock className="h-4 w-4 text-[#F59E0B]" />
-            <h2 className="text-lg font-semibold text-[#F1F5F9]">Time Schedules</h2>
+            <h2 className="text-lg font-semibold text-[#0F172A]">Time Schedules</h2>
           </div>
           <div className="flex flex-col gap-3">
             {schedules.map((sch) => (
               <Card key={sch.id} className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-medium text-[#F1F5F9]">{sch.label}</p>
-                  <p className="text-sm text-[#94A3B8] mt-0.5">
+                  <p className="font-medium text-[#0F172A]">{sch.label}</p>
+                  <p className="text-sm text-[#64748B] mt-0.5">
                     {sch.startTime}–{sch.endTime}
                   </p>
                   <div className="flex gap-1 mt-2">
@@ -123,7 +123,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                         className={`text-xs px-1.5 py-0.5 rounded ${
                           sch.days.includes(d)
                             ? 'bg-[#0EA5E9]/20 text-[#0EA5E9] font-medium'
-                            : 'text-[#475569]'
+                            : 'text-[#64748B]'
                         }`}
                       >
                         {DAYS[i]}
@@ -149,7 +149,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Globe className="h-4 w-4 text-[#22C55E]" />
-            <h2 className="text-lg font-semibold text-[#F1F5F9]">Site Overrides</h2>
+            <h2 className="text-lg font-semibold text-[#0F172A]">Site Overrides</h2>
           </div>
           <Card className="p-0 overflow-hidden">
             <div className="divide-y divide-[#1A1A2E]">
@@ -157,7 +157,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
                 const cfg = ACTION_CONFIG[o.action];
                 return (
                   <div key={o.id} className="flex items-center justify-between px-5 py-3">
-                    <p className="text-sm font-mono text-[#F1F5F9]">{o.url}</p>
+                    <p className="text-sm font-mono text-[#0F172A]">{o.url}</p>
                     <Badge variant={cfg.variant}>{cfg.label}</Badge>
                   </div>
                 );
@@ -172,15 +172,15 @@ export default async function ProfileDetailPage({ params }: { params: Promise<{ 
         <section>
           <div className="flex items-center gap-2 mb-4">
             <Smartphone className="h-4 w-4 text-[#22D3EE]" />
-            <h2 className="text-lg font-semibold text-[#F1F5F9]">Connected Devices</h2>
+            <h2 className="text-lg font-semibold text-[#0F172A]">Connected Devices</h2>
           </div>
           <Card className="p-0 overflow-hidden">
             <div className="divide-y divide-[#1A1A2E]">
               {devices.map((dev) => (
                 <div key={dev.id} className="flex items-center justify-between px-5 py-3">
                   <div>
-                    <p className="text-sm font-medium text-[#F1F5F9]">{dev.deviceName}</p>
-                    <p className="text-xs text-[#64748B] capitalize">{dev.platform} · {dev.osVersion}</p>
+                    <p className="text-sm font-medium text-[#0F172A]">{dev.deviceName}</p>
+                    <p className="text-xs text-[#94A3B8] capitalize">{dev.platform} · {dev.osVersion}</p>
                   </div>
                   <Badge variant={dev.isOnline ? 'success' : 'muted'}>
                     {dev.isOnline ? 'Online' : 'Offline'}

@@ -7,10 +7,10 @@ import { XCircle, CheckCircle2, Bell, Clock, Shield, Smartphone, Monitor, Apple,
 
 function ProfileSetupMockup() {
   return (
-    <div className="rounded-xl bg-[#08080F] border border-[#1A1A2E] overflow-hidden text-xs">
-      <div className="px-4 py-3 border-b border-[#1A1A2E] flex items-center gap-2">
+    <div className="rounded-xl bg-white border border-[#DBEAFE] overflow-hidden text-xs">
+      <div className="px-4 py-3 border-b border-[#DBEAFE] flex items-center gap-2">
         <div className="h-5 w-5 rounded bg-[#3B82F6] flex items-center justify-center text-[10px] font-bold text-white">E</div>
-        <span className="font-semibold text-[#F1F5F9]">Emma</span>
+        <span className="font-semibold text-[#0F172A]">Emma</span>
         <span className="ml-auto text-[10px] text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/20 px-2 py-0.5 rounded-full">Child · 9 years</span>
       </div>
       <div className="p-4 flex flex-col gap-2.5">
@@ -22,7 +22,7 @@ function ProfileSetupMockup() {
           { cat: 'Streaming', rule: 'limit · 1h/day', color: '#F59E0B' },
         ].map((r) => (
           <div key={r.cat} className="flex items-center justify-between">
-            <span className="text-[#94A3B8]">{r.cat}</span>
+            <span className="text-[#64748B]">{r.cat}</span>
             <span className="font-medium" style={{ color: r.color }}>{r.rule}</span>
           </div>
         ))}
@@ -33,9 +33,9 @@ function ProfileSetupMockup() {
 
 function DeviceConnectedMockup() {
   return (
-    <div className="rounded-xl bg-[#08080F] border border-[#1A1A2E] overflow-hidden text-xs">
-      <div className="px-4 py-3 border-b border-[#1A1A2E]">
-        <span className="text-[#64748B]">Emma's devices</span>
+    <div className="rounded-xl bg-white border border-[#DBEAFE] overflow-hidden text-xs">
+      <div className="px-4 py-3 border-b border-[#DBEAFE]">
+        <span className="text-[#94A3B8]">Emma's devices</span>
       </div>
       <div className="p-4 flex flex-col gap-3">
         {[
@@ -43,17 +43,17 @@ function DeviceConnectedMockup() {
           { name: "Emma's iPad", status: 'Active', icon: '📟', profile: 'Child profile' },
           { name: "School Laptop", status: 'Inactive', icon: '💻', profile: 'Child profile' },
         ].map((d) => (
-          <div key={d.name} className="flex items-center gap-3 rounded-lg bg-[#0D0D1A] border border-[#1A1A2E] px-3 py-2.5">
+          <div key={d.name} className="flex items-center gap-3 rounded-lg bg-[#EEF3FF] border border-[#DBEAFE] px-3 py-2.5">
             <span className="text-base shrink-0">{d.icon}</span>
             <div className="flex-1 min-w-0">
-              <p className="text-[#CBD5E1] font-medium truncate">{d.name}</p>
-              <p className="text-[#475569] text-[10px]">{d.profile}</p>
+              <p className="text-[#334155] font-medium truncate">{d.name}</p>
+              <p className="text-[#64748B] text-[10px]">{d.profile}</p>
             </div>
             <span
               className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
                 d.status === 'Active'
                   ? 'text-[#22C55E] bg-[#22C55E]/10 border-[#22C55E]/20'
-                  : 'text-[#475569] bg-[#1A1A2E] border-[#252540]'
+                  : 'text-[#94A3B8] bg-[#EEF3FF] border-[#DBEAFE]'
               }`}
             >
               {d.status}
@@ -67,15 +67,15 @@ function DeviceConnectedMockup() {
 
 function BlockedSiteMockup() {
   return (
-    <div className="rounded-xl bg-[#08080F] border border-[#1A1A2E] overflow-hidden text-xs">
+    <div className="rounded-xl bg-white border border-[#DBEAFE] overflow-hidden text-xs">
       {/* Simulated browser bar */}
-      <div className="px-4 py-2 border-b border-[#1A1A2E] bg-[#0D0D1A] flex items-center gap-2">
+      <div className="px-4 py-2 border-b border-[#DBEAFE] bg-[#EEF3FF] flex items-center gap-2">
         <div className="flex gap-1">
           <div className="h-2 w-2 rounded-full bg-[#EF4444]/70" />
           <div className="h-2 w-2 rounded-full bg-[#F59E0B]/70" />
           <div className="h-2 w-2 rounded-full bg-[#22C55E]/70" />
         </div>
-        <div className="flex-1 rounded bg-[#111120] px-3 py-1 text-[#EF4444]/80 font-mono text-[10px] text-center">
+        <div className="flex-1 rounded bg-white px-3 py-1 text-[#EF4444]/80 font-mono text-[10px] text-center">
           tiktok.com
         </div>
       </div>
@@ -85,8 +85,8 @@ function BlockedSiteMockup() {
           <XCircle className="h-5 w-5 text-[#EF4444]" />
         </div>
         <div className="text-center">
-          <p className="font-semibold text-[#F1F5F9] mb-1">Site blocked</p>
-          <p className="text-[#64748B] text-[10px]">Social Media · Child profile</p>
+          <p className="font-semibold text-[#0F172A] mb-1">Site blocked</p>
+          <p className="text-[#94A3B8] text-[10px]">Social Media · Child profile</p>
         </div>
         <button className="mt-1 text-[10px] font-medium text-[#0EA5E9] border border-[#0EA5E9]/30 bg-[#0EA5E9]/8 rounded-lg px-3 py-1.5">
           Request access from parent →
@@ -98,18 +98,18 @@ function BlockedSiteMockup() {
 
 function NotificationMockup() {
   return (
-    <div className="rounded-xl bg-[#08080F] border border-[#1A1A2E] overflow-hidden text-xs">
-      <div className="px-4 py-3 border-b border-[#1A1A2E] flex items-center gap-2">
+    <div className="rounded-xl bg-white border border-[#DBEAFE] overflow-hidden text-xs">
+      <div className="px-4 py-3 border-b border-[#DBEAFE] flex items-center gap-2">
         <Bell className="h-4 w-4 text-[#F59E0B]" />
-        <span className="font-semibold text-[#F1F5F9]">Access request</span>
-        <span className="ml-auto text-[#475569] text-[10px]">Just now</span>
+        <span className="font-semibold text-[#0F172A]">Access request</span>
+        <span className="ml-auto text-[#64748B] text-[10px]">Just now</span>
       </div>
       <div className="p-4">
-        <p className="text-[#94A3B8] mb-4">
-          <span className="text-[#F1F5F9] font-medium">Emma</span> wants to access{' '}
+        <p className="text-[#64748B] mb-4">
+          <span className="text-[#0F172A] font-medium">Emma</span> wants to access{' '}
           <span className="text-[#F59E0B] font-medium">tiktok.com</span>
           <br />
-          <span className="text-[#475569] text-[10px]">Social Media · blocked by Child profile</span>
+          <span className="text-[#64748B] text-[10px]">Social Media · blocked by Child profile</span>
         </p>
         <div className="flex gap-2">
           <button className="flex-1 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/25 text-[#22C55E] font-semibold py-2 text-[11px]">
@@ -238,16 +238,16 @@ export function ParentControlSection() {
   const currentStep = steps[activeStep];
 
   return (
-    <section className="py-24 border-t border-[#1A1A2E]">
+    <section className="py-24 border-t border-[#DBEAFE]">
       <div className="mx-auto max-w-7xl px-6">
 
         {/* Header */}
         <div className="mb-16">
           <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">For parents</p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight max-w-2xl">
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight max-w-2xl">
             How you actually control<br />what your child sees online
           </h2>
-          <p className="text-[#64748B] mt-4 max-w-xl leading-relaxed">
+          <p className="text-[#94A3B8] mt-4 max-w-xl leading-relaxed">
             No complicated software. No agent installed on their phone. Just one DNS setting —
             and you control everything from a single dashboard.
           </p>
@@ -255,7 +255,7 @@ export function ParentControlSection() {
 
         {/* ── Scenario walkthrough ── */}
         <div className="mb-20">
-          <p className="text-xs font-semibold text-[#64748B] uppercase tracking-widest mb-6">
+          <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest mb-6">
             Real example: Emma, age 9
           </p>
 
@@ -268,7 +268,7 @@ export function ParentControlSection() {
                 className={`text-left rounded-xl border p-4 transition-all ${
                   activeStep === i
                     ? 'border-[#0EA5E9]/40 bg-[#0EA5E9]/8'
-                    : 'border-[#1A1A2E] bg-[#0D0D1A] hover:border-[#252540]'
+                    : 'border-[#DBEAFE] bg-[#EEF3FF] hover:border-[#93C5FD]'
                 }`}
               >
                 <p
@@ -277,7 +277,7 @@ export function ParentControlSection() {
                 >
                   Step {s.num}
                 </p>
-                <p className="text-xs font-medium text-[#CBD5E1] leading-snug">{s.title}</p>
+                <p className="text-xs font-medium text-[#334155] leading-snug">{s.title}</p>
               </button>
             ))}
           </div>
@@ -295,8 +295,8 @@ export function ParentControlSection() {
               >
                 Step {currentStep.num}
               </div>
-              <h3 className="text-xl font-bold text-[#F1F5F9] mb-3">{currentStep.title}</h3>
-              <p className="text-[#64748B] leading-relaxed">{currentStep.description}</p>
+              <h3 className="text-xl font-bold text-[#0F172A] mb-3">{currentStep.title}</h3>
+              <p className="text-[#94A3B8] leading-relaxed">{currentStep.description}</p>
 
               {/* Next step hint */}
               {activeStep < steps.length - 1 && (
@@ -314,16 +314,16 @@ export function ParentControlSection() {
         </div>
 
         {/* ── Device connection guide ── */}
-        <div className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] overflow-hidden">
-          <div className="px-6 py-5 border-b border-[#1A1A2E]">
-            <h3 className="font-bold text-[#F1F5F9] text-lg mb-1">How to connect a device</h3>
-            <p className="text-sm text-[#64748B]">
+        <div className="rounded-2xl border border-[#DBEAFE] bg-[#EEF3FF] overflow-hidden">
+          <div className="px-6 py-5 border-b border-[#DBEAFE]">
+            <h3 className="font-bold text-[#0F172A] text-lg mb-1">How to connect a device</h3>
+            <p className="text-sm text-[#94A3B8]">
               Pick the device type. You'll copy the Guardian DNS address from your dashboard and paste it in one setting.
             </p>
           </div>
 
           {/* Device tabs */}
-          <div className="flex overflow-x-auto border-b border-[#1A1A2E]">
+          <div className="flex overflow-x-auto border-b border-[#DBEAFE]">
             {deviceGuides.map((d) => (
               <button
                 key={d.id}
@@ -331,7 +331,7 @@ export function ParentControlSection() {
                 className={`flex items-center gap-2 px-5 py-3.5 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 ${
                   activeDevice === d.id
                     ? 'text-[#0EA5E9] border-[#0EA5E9] bg-[#0EA5E9]/5'
-                    : 'text-[#475569] border-transparent hover:text-[#94A3B8]'
+                    : 'text-[#64748B] border-transparent hover:text-[#64748B]'
                 }`}
               >
                 <span>{d.icon}</span>
@@ -351,19 +351,19 @@ export function ParentControlSection() {
                     >
                       {i + 1}
                     </div>
-                    <p className="text-sm text-[#94A3B8] leading-relaxed">{step}</p>
+                    <p className="text-sm text-[#64748B] leading-relaxed">{step}</p>
                   </li>
                 ))}
               </ol>
-              <div className="mt-5 rounded-lg border border-[#1A1A2E] bg-[#111120] px-4 py-3 flex gap-3">
+              <div className="mt-5 rounded-lg border border-[#DBEAFE] bg-white px-4 py-3 flex gap-3">
                 <Shield className="h-4 w-4 text-[#0EA5E9] shrink-0 mt-0.5" />
-                <p className="text-xs text-[#64748B] leading-relaxed">{currentDevice.note}</p>
+                <p className="text-xs text-[#94A3B8] leading-relaxed">{currentDevice.note}</p>
               </div>
             </div>
 
             {/* What happens after */}
-            <div className="rounded-xl border border-[#1A1A2E] bg-[#111120] p-5">
-              <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-4">After connecting</p>
+            <div className="rounded-xl border border-[#DBEAFE] bg-white p-5">
+              <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">After connecting</p>
               <div className="flex flex-col gap-3">
                 {[
                   {
@@ -389,7 +389,7 @@ export function ParentControlSection() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="shrink-0 mt-0.5">{item.icon}</div>
-                    <p className="text-xs text-[#94A3B8] leading-relaxed">{item.text}</p>
+                    <p className="text-xs text-[#64748B] leading-relaxed">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -416,10 +416,10 @@ export function ParentControlSection() {
               desc: "If Emma logs into a new Wi-Fi, the rules still apply as long as Guardian is her DNS.",
             },
           ].map((card) => (
-            <div key={card.title} className="rounded-xl border border-[#1A1A2E] bg-[#0D0D1A] p-5">
+            <div key={card.title} className="rounded-xl border border-[#DBEAFE] bg-[#EEF3FF] p-5">
               <div className="text-2xl mb-3">{card.icon}</div>
-              <p className="font-semibold text-[#CBD5E1] mb-1.5">{card.title}</p>
-              <p className="text-sm text-[#64748B] leading-relaxed">{card.desc}</p>
+              <p className="font-semibold text-[#334155] mb-1.5">{card.title}</p>
+              <p className="text-sm text-[#94A3B8] leading-relaxed">{card.desc}</p>
             </div>
           ))}
         </div>

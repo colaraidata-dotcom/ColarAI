@@ -81,8 +81,8 @@ export default function NotificationsPage() {
   if (!loaded) {
     return (
       <div className="p-8">
-        <div className="h-8 w-40 rounded-lg bg-[#1A1A2E] animate-pulse mb-2" />
-        <div className="h-4 w-24 rounded bg-[#1A1A2E] animate-pulse" />
+        <div className="h-8 w-40 rounded-lg bg-[#DBEAFE] animate-pulse mb-2" />
+        <div className="h-4 w-24 rounded bg-[#DBEAFE] animate-pulse" />
       </div>
     );
   }
@@ -91,8 +91,8 @@ export default function NotificationsPage() {
     <div className="p-8 flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F1F5F9]">Notifications</h1>
-          <p className="text-[#94A3B8] text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-[#0F172A]">Notifications</h1>
+          <p className="text-[#64748B] text-sm mt-0.5">
             {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All notifications read'}
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function NotificationsPage() {
       {/* Pending access requests */}
       {pendingRequests.length > 0 && (
         <section>
-          <h2 className="text-base font-semibold text-[#F1F5F9] mb-3">Pending Access Requests</h2>
+          <h2 className="text-base font-semibold text-[#0F172A] mb-3">Pending Access Requests</h2>
           <div className="flex flex-col gap-3">
             {pendingRequests.map((req) => (
               <Card key={req.id} className="flex items-center justify-between gap-4 border-[#F59E0B]/20 bg-[#F59E0B]/5">
@@ -115,11 +115,11 @@ export default function NotificationsPage() {
                     {req.profileEmoji}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-[#F1F5F9]">
+                    <p className="text-sm font-medium text-[#0F172A]">
                       {req.profileName} — <span className="font-mono">{req.siteName}</span>
                     </p>
-                    {req.note && <p className="text-xs text-[#94A3B8] mt-0.5">&ldquo;{req.note}&rdquo;</p>}
-                    <p className="text-xs text-[#64748B] mt-0.5">{timeAgo(req.requestedAt)}</p>
+                    {req.note && <p className="text-xs text-[#64748B] mt-0.5">&ldquo;{req.note}&rdquo;</p>}
+                    <p className="text-xs text-[#94A3B8] mt-0.5">{timeAgo(req.requestedAt)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -138,9 +138,9 @@ export default function NotificationsPage() {
 
       {/* All notifications */}
       <section>
-        <h2 className="text-base font-semibold text-[#F1F5F9] mb-3">All Notifications</h2>
+        <h2 className="text-base font-semibold text-[#0F172A] mb-3">All Notifications</h2>
         {notifications.length === 0 ? (
-          <Card className="py-12 text-center text-sm text-[#64748B]">No notifications yet.</Card>
+          <Card className="py-12 text-center text-sm text-[#94A3B8]">No notifications yet.</Card>
         ) : (
           <Card className="p-0 overflow-hidden">
             <div className="divide-y divide-[#1A1A2E]">
@@ -151,7 +151,7 @@ export default function NotificationsPage() {
                   <div
                     key={notif.id}
                     className={`flex items-start gap-4 px-5 py-4 transition-colors ${
-                      !notif.read ? 'bg-[#111120]' : ''
+                      !notif.read ? 'bg-white' : ''
                     }`}
                   >
                     <div
@@ -162,13 +162,13 @@ export default function NotificationsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
-                        <p className={`text-sm font-medium ${!notif.read ? 'text-[#F1F5F9]' : 'text-[#CBD5E1]'}`}>
+                        <p className={`text-sm font-medium ${!notif.read ? 'text-[#0F172A]' : 'text-[#334155]'}`}>
                           {notif.title}
                         </p>
                         {cfg && <Badge variant="muted" className="text-xs">{cfg.label}</Badge>}
                       </div>
-                      <p className="text-xs text-[#94A3B8]">{notif.body}</p>
-                      <p className="text-xs text-[#475569] mt-1">{timeAgo(notif.createdAt)}</p>
+                      <p className="text-xs text-[#64748B]">{notif.body}</p>
+                      <p className="text-xs text-[#64748B] mt-1">{timeAgo(notif.createdAt)}</p>
                     </div>
                     {!notif.read && (
                       <div className="h-2 w-2 rounded-full bg-[#0EA5E9] mt-2 shrink-0" />

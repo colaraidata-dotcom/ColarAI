@@ -56,8 +56,8 @@ export default async function DashboardPage() {
     <div className="p-8 flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F1F5F9]">Dashboard</h1>
-          <p className="text-[#94A3B8] text-sm mt-0.5">{today}</p>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Dashboard</h1>
+          <p className="text-[#64748B] text-sm mt-0.5">{today}</p>
         </div>
         {pendingRequests.length > 0 && (
           <div className="flex items-center gap-2">
@@ -74,12 +74,12 @@ export default async function DashboardPage() {
           return (
             <Card key={s.label} className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-[#94A3B8]">{s.label}</p>
+                <p className="text-sm text-[#64748B]">{s.label}</p>
                 <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ background: s.color + '20' }}>
                   <Icon className="h-4 w-4" style={{ color: s.color }} />
                 </div>
               </div>
-              <p className="text-3xl font-bold text-[#F1F5F9]">{s.value}</p>
+              <p className="text-3xl font-bold text-[#0F172A]">{s.value}</p>
             </Card>
           );
         })}
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
       {/* Pending requests */}
       {pendingRequests.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4">Pending Access Requests</h2>
+          <h2 className="text-lg font-semibold text-[#0F172A] mb-4">Pending Access Requests</h2>
           <div className="flex flex-col gap-3">
             {pendingRequests.map((req: any) => (
               <div
@@ -96,10 +96,10 @@ export default async function DashboardPage() {
                 className="flex items-center justify-between rounded-xl border border-[#F59E0B]/20 bg-[#F59E0B]/5 px-5 py-4"
               >
                 <div>
-                  <p className="text-sm font-medium text-[#F1F5F9]">
+                  <p className="text-sm font-medium text-[#0F172A]">
                     {req.profiles?.display_name ?? 'Unknown profile'} — {req.domain}
                   </p>
-                  <p className="text-xs text-[#94A3B8]">{req.reason ?? 'No reason given'} · {timeAgo(req.created_at)}</p>
+                  <p className="text-xs text-[#64748B]">{req.reason ?? 'No reason given'} · {timeAgo(req.created_at)}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="danger" size="sm">Deny</Button>
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
       {/* Profiles */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-[#F1F5F9]">Profiles</h2>
+          <h2 className="text-lg font-semibold text-[#0F172A]">Profiles</h2>
           <Link href="/profiles">
             <Button variant="secondary" size="sm">
               <Plus className="h-3.5 w-3.5" />
@@ -128,8 +128,8 @@ export default async function DashboardPage() {
             <div className="h-12 w-12 rounded-2xl bg-[#0EA5E9]/10 flex items-center justify-center">
               <Users className="h-6 w-6 text-[#0EA5E9]" />
             </div>
-            <p className="font-medium text-[#F1F5F9]">No profiles yet</p>
-            <p className="text-sm text-[#64748B]">Create a profile for each person to enforce their rules.</p>
+            <p className="font-medium text-[#0F172A]">No profiles yet</p>
+            <p className="text-sm text-[#94A3B8]">Create a profile for each person to enforce their rules.</p>
             <Link href="/profiles">
               <Button size="sm" className="mt-2">Create first profile</Button>
             </Link>
@@ -150,9 +150,9 @@ export default async function DashboardPage() {
                         {profile.display_name.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-semibold text-[#F1F5F9]">{profile.display_name}</p>
-                        <p className="text-sm text-[#94A3B8]">{PROFILE_TYPE_LABELS[profile.type] ?? profile.type}</p>
-                        <p className="text-xs text-[#64748B] mt-0.5">
+                        <p className="font-semibold text-[#0F172A]">{profile.display_name}</p>
+                        <p className="text-sm text-[#64748B]">{PROFILE_TYPE_LABELS[profile.type] ?? profile.type}</p>
+                        <p className="text-xs text-[#94A3B8] mt-0.5">
                           <Smartphone className="h-3 w-3 inline mr-1" />
                           {devices.length} device{devices.length !== 1 ? 's' : ''} ({onlineCount} online)
                         </p>
@@ -171,9 +171,9 @@ export default async function DashboardPage() {
 
       {/* Recent notifications */}
       <div>
-        <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4">Recent Notifications</h2>
+        <h2 className="text-lg font-semibold text-[#0F172A] mb-4">Recent Notifications</h2>
         {recentNotifications.length === 0 ? (
-          <Card className="py-8 text-center text-sm text-[#64748B]">No notifications yet.</Card>
+          <Card className="py-8 text-center text-sm text-[#94A3B8]">No notifications yet.</Card>
         ) : (
           <Card className="flex flex-col gap-0 p-0 overflow-hidden">
             {recentNotifications.map((notif: any, i: number) => {
@@ -183,8 +183,8 @@ export default async function DashboardPage() {
                 <div
                   key={notif.id}
                   className={`flex items-start gap-4 px-5 py-4 ${
-                    i < recentNotifications.length - 1 ? 'border-b border-[#1A1A2E]' : ''
-                  } ${!notif.is_read ? 'bg-[#111120]' : ''}`}
+                    i < recentNotifications.length - 1 ? 'border-b border-[#DBEAFE]' : ''
+                  } ${!notif.is_read ? 'bg-[#EEF3FF]' : ''}`}
                 >
                   <div className="shrink-0 mt-0.5">
                     <div className="h-7 w-7 rounded-full flex items-center justify-center" style={{ background: color + '20' }}>
@@ -192,13 +192,13 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${!notif.is_read ? 'text-[#F1F5F9]' : 'text-[#CBD5E1]'}`}>
+                    <p className={`text-sm font-medium ${!notif.is_read ? 'text-[#0F172A]' : 'text-[#334155]'}`}>
                       {notif.title}
                     </p>
-                    <p className="text-xs text-[#94A3B8] mt-0.5">{notif.body}</p>
+                    <p className="text-xs text-[#64748B] mt-0.5">{notif.body}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-xs text-[#475569]">{timeAgo(notif.created_at)}</span>
+                    <span className="text-xs text-[#64748B]">{timeAgo(notif.created_at)}</span>
                     {!notif.is_read && <div className="h-2 w-2 rounded-full bg-[#0EA5E9]" />}
                   </div>
                 </div>

@@ -34,9 +34,9 @@ export default function ForgotPasswordPage() {
         <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#22C55E]/15">
           <CheckCircle2 className="h-8 w-8 text-[#22C55E]" />
         </div>
-        <h1 className="text-2xl font-bold text-[#F1F5F9] mb-3">Check your email</h1>
-        <p className="text-sm text-[#64748B] mb-8">
-          We sent a password reset link to <span className="text-[#CBD5E1]">{email}</span>.
+        <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Check your email</h1>
+        <p className="text-sm text-[#94A3B8] mb-8">
+          We sent a password reset link to <span className="text-[#334155]">{email}</span>.
           The link expires in 24 hours.
         </p>
         <Link href="/sign-in">
@@ -50,15 +50,15 @@ export default function ForgotPasswordPage() {
     <div className="w-full max-w-sm">
       <Link
         href="/sign-in"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#64748B] transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to sign in
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#F1F5F9]">Forgot password?</h1>
-        <p className="mt-2 text-sm text-[#64748B]">
+        <h1 className="text-2xl font-bold text-[#0F172A]">Forgot password?</h1>
+        <p className="mt-2 text-sm text-[#94A3B8]">
           Enter your email and we&apos;ll send you a reset link.
         </p>
       </div>
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="email">
+          <label className="text-sm font-medium text-[#334155]" htmlFor="email">
             Email address
           </label>
           <input
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+            className="h-11 rounded-xl border border-[#DBEAFE] bg-white px-4 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
           />
         </div>
 

@@ -58,12 +58,12 @@ export function FeaturesSection() {
         {/* Section header */}
         <div className="mb-16">
           <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">Features</p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight max-w-xl">
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight max-w-xl">
             One platform,<br />for everyone
           </h2>
         </div>
 
-        {/* Feature rows — NOT a bento grid */}
+        {/* Feature rows */}
         <div className="flex flex-col">
           {features.map((f, i) => {
             const Icon = f.icon;
@@ -72,11 +72,11 @@ export function FeaturesSection() {
               <div
                 key={f.title}
                 className={`group grid grid-cols-[80px_1fr_2fr] gap-8 py-8 items-start ${
-                  !isLast ? 'border-b border-[#1A1A2E]' : ''
+                  !isLast ? 'border-b border-[#DBEAFE]' : ''
                 }`}
               >
                 {/* Number */}
-                <span className="text-sm font-mono text-[#2A2A40] font-bold pt-0.5 group-hover:text-[#0EA5E9] transition-colors">
+                <span className="text-sm font-mono text-[#BFDBFE] font-bold pt-0.5 group-hover:text-[#0EA5E9] transition-colors">
                   {f.num}
                 </span>
 
@@ -88,13 +88,13 @@ export function FeaturesSection() {
                   >
                     <Icon className="h-4.5 w-4.5" style={{ color: f.color }} />
                   </div>
-                  <h3 className="text-base font-semibold text-[#F1F5F9] leading-tight pt-1.5">
+                  <h3 className="text-base font-semibold text-[#0F172A] leading-tight pt-1.5">
                     {f.title}
                   </h3>
                 </div>
 
                 {/* Description */}
-                <p className="text-[#64748B] leading-relaxed text-sm pt-1.5 group-hover:text-[#94A3B8] transition-colors">
+                <p className="text-[#94A3B8] leading-relaxed text-sm pt-1.5 group-hover:text-[#475569] transition-colors">
                   {f.description}
                 </p>
               </div>

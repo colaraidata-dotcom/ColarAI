@@ -83,11 +83,11 @@ export default function ReportsPage() {
   if (!loaded) {
     return (
       <div className="p-8 flex flex-col gap-6">
-        <div className="h-8 w-48 rounded-lg bg-[#1A1A2E] animate-pulse" />
+        <div className="h-8 w-48 rounded-lg bg-[#DBEAFE] animate-pulse" />
         <div className="grid grid-cols-3 gap-4">
-          {[0, 1, 2].map((i) => <div key={i} className="h-24 rounded-2xl bg-[#1A1A2E] animate-pulse" />)}
+          {[0, 1, 2].map((i) => <div key={i} className="h-24 rounded-2xl bg-[#DBEAFE] animate-pulse" />)}
         </div>
-        <div className="h-64 rounded-2xl bg-[#1A1A2E] animate-pulse" />
+        <div className="h-64 rounded-2xl bg-[#DBEAFE] animate-pulse" />
       </div>
     );
   }
@@ -101,32 +101,32 @@ export default function ReportsPage() {
   return (
     <div className="p-8 flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#F1F5F9]">Usage Reports</h1>
-        <p className="text-[#94A3B8] text-sm mt-0.5">Last 7 days</p>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Usage Reports</h1>
+        <p className="text-[#64748B] text-sm mt-0.5">Last 7 days</p>
       </div>
 
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card className="flex flex-col gap-1">
-          <p className="text-xs text-[#94A3B8]">Total Requests</p>
-          <p className="text-2xl font-bold text-[#F1F5F9]">{report.totalRequests.toLocaleString()}</p>
+          <p className="text-xs text-[#64748B]">Total Requests</p>
+          <p className="text-2xl font-bold text-[#0F172A]">{report.totalRequests.toLocaleString()}</p>
         </Card>
         <Card className="flex flex-col gap-1">
-          <p className="text-xs text-[#94A3B8]">Blocked</p>
+          <p className="text-xs text-[#64748B]">Blocked</p>
           <div className="flex items-baseline gap-2">
             <p className="text-2xl font-bold text-[#EF4444]">{report.blocked.toLocaleString()}</p>
-            <p className="text-sm text-[#64748B]">{blockRate}%</p>
+            <p className="text-sm text-[#94A3B8]">{blockRate}%</p>
           </div>
         </Card>
         <Card className="flex flex-col gap-1">
-          <p className="text-xs text-[#94A3B8]">Allowed</p>
+          <p className="text-xs text-[#64748B]">Allowed</p>
           <p className="text-2xl font-bold text-[#22C55E]">{report.allowed.toLocaleString()}</p>
         </Card>
       </div>
 
       {/* Daily bar chart */}
       <Card className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold text-[#F1F5F9]">Daily Requests</h2>
+        <h2 className="text-base font-semibold text-[#0F172A]">Daily Requests</h2>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={report.dailyData} barSize={18} barGap={4}>
             <XAxis
@@ -142,9 +142,9 @@ export default function ReportsPage() {
               width={36}
             />
             <Tooltip
-              contentStyle={{ background: '#111120', border: '1px solid #1A1A2E', borderRadius: 8 }}
+              contentStyle={{ background: '#FFFFFF', border: '1px solid #DBEAFE', borderRadius: 8 }}
               labelStyle={{ color: '#94A3B8', fontSize: 12 }}
-              cursor={{ fill: '#1A1A2E' }}
+              cursor={{ fill: '#DBEAFE' }}
             />
             <Legend
               wrapperStyle={{ fontSize: 12, color: '#94A3B8', paddingTop: 8 }}
@@ -157,9 +157,9 @@ export default function ReportsPage() {
 
       {/* Category breakdown */}
       <Card className="flex flex-col gap-4">
-        <h2 className="text-base font-semibold text-[#F1F5F9]">Category Breakdown</h2>
+        <h2 className="text-base font-semibold text-[#0F172A]">Category Breakdown</h2>
         {report.categoryBreakdown.length === 0 ? (
-          <p className="text-sm text-[#64748B]">No category data yet.</p>
+          <p className="text-sm text-[#94A3B8]">No category data yet.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {report.categoryBreakdown.map((cb) => (
@@ -168,8 +168,8 @@ export default function ReportsPage() {
                   className="h-2.5 w-2.5 rounded-full shrink-0"
                   style={{ background: CATEGORY_COLORS[cb.category] ?? '#64748B' }}
                 />
-                <span className="text-sm text-[#CBD5E1] flex-1 capitalize">{cb.category}</span>
-                <div className="flex-1 max-w-[200px] h-1.5 rounded-full bg-[#1A1A2E] overflow-hidden">
+                <span className="text-sm text-[#334155] flex-1 capitalize">{cb.category}</span>
+                <div className="flex-1 max-w-[200px] h-1.5 rounded-full bg-[#DBEAFE] overflow-hidden">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -179,7 +179,7 @@ export default function ReportsPage() {
                   />
                 </div>
                 <Badge variant="muted" className="text-xs w-10 text-center shrink-0">{cb.pct}%</Badge>
-                <span className="text-xs text-[#64748B] w-8 text-right shrink-0">{cb.count.toLocaleString()}</span>
+                <span className="text-xs text-[#94A3B8] w-8 text-right shrink-0">{cb.count.toLocaleString()}</span>
               </div>
             ))}
           </div>

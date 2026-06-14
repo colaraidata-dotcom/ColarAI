@@ -15,7 +15,7 @@ const recentEvents = [
 
 export function DashboardPreviewMini() {
   return (
-    <div className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] overflow-hidden shadow-2xl shadow-black/40">
+    <div className="rounded-2xl border border-[#DBEAFE] bg-white overflow-hidden shadow-2xl shadow-black/40">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#1A1A2E] px-4 py-3">
         <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export function DashboardPreviewMini() {
         {profiles.map((p) => (
           <div
             key={p.name}
-            className="flex items-center justify-between rounded-xl border border-[#1A1A2E] bg-[#111120] px-3 py-2.5"
+            className="flex items-center justify-between rounded-xl border border-[#DBEAFE] bg-[#EEF3FF] px-3 py-2.5"
           >
             <div className="flex items-center gap-3">
               <div

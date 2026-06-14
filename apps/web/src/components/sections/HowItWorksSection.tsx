@@ -29,17 +29,16 @@ const steps = [
   },
 ];
 
-// Simple visual flow diagram
 function FlowDiagram() {
   return (
-    <div className="my-12 rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] p-6 overflow-x-auto">
+    <div className="my-12 rounded-2xl border border-[#DBEAFE] bg-white p-6 overflow-x-auto">
       <div className="flex items-center gap-0 min-w-[520px]">
         {/* Device */}
         <div className="flex flex-col items-center gap-2 shrink-0">
-          <div className="h-12 w-12 rounded-xl bg-[#1A1A2E] border border-[#252540] flex items-center justify-center text-xl">
+          <div className="h-12 w-12 rounded-xl bg-[#EEF3FF] border border-[#DBEAFE] flex items-center justify-center text-xl">
             📱
           </div>
-          <p className="text-[10px] text-[#475569] font-medium text-center">Child's<br />device</p>
+          <p className="text-[10px] text-[#94A3B8] font-medium text-center">Child's<br />device</p>
         </div>
 
         {/* Arrow + label */}
@@ -48,15 +47,15 @@ function FlowDiagram() {
           <div className="w-full h-px bg-gradient-to-r from-[#0EA5E9]/60 to-[#0EA5E9]/60 relative">
             <div className="absolute right-0 top-[-3px] border-l-4 border-l-[#0EA5E9] border-y-4 border-y-transparent" />
           </div>
-          <p className="text-[9px] text-[#475569]">"where is tiktok.com?"</p>
+          <p className="text-[9px] text-[#94A3B8]">"where is tiktok.com?"</p>
         </div>
 
         {/* Guardian */}
         <div className="flex flex-col items-center gap-2 shrink-0">
-          <div className="h-12 w-20 rounded-xl bg-[#0EA5E9]/10 border border-[#0EA5E9]/30 flex items-center justify-center">
-            <span className="text-xs font-bold text-[#0EA5E9]">Guardian</span>
+          <div className="h-12 w-20 rounded-xl bg-[#0EA5E9]/8 border border-[#0EA5E9]/25 flex items-center justify-center">
+            <span className="text-xs font-bold text-[#0369A1]">Guardian</span>
           </div>
-          <p className="text-[10px] text-[#475569] font-medium text-center">Checks rules<br />instantly</p>
+          <p className="text-[10px] text-[#94A3B8] font-medium text-center">Checks rules<br />instantly</p>
         </div>
 
         {/* Two outcomes */}
@@ -66,8 +65,8 @@ function FlowDiagram() {
             <div className="flex-1 h-px bg-[#EF4444]/40 relative">
               <div className="absolute right-0 top-[-3px] border-l-4 border-l-[#EF4444] border-y-4 border-y-transparent" />
             </div>
-            <div className="h-7 w-20 shrink-0 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 flex items-center justify-center">
-              <p className="text-[10px] font-semibold text-[#EF4444]">BLOCKED</p>
+            <div className="h-7 w-20 shrink-0 rounded-lg bg-[#EF4444]/8 border border-[#EF4444]/25 flex items-center justify-center">
+              <p className="text-[10px] font-semibold text-[#B91C1C]">BLOCKED</p>
             </div>
           </div>
           {/* Allowed path */}
@@ -75,17 +74,17 @@ function FlowDiagram() {
             <div className="flex-1 h-px bg-[#22C55E]/40 relative">
               <div className="absolute right-0 top-[-3px] border-l-4 border-l-[#22C55E] border-y-4 border-y-transparent" />
             </div>
-            <div className="h-7 w-20 shrink-0 rounded-lg bg-[#22C55E]/10 border border-[#22C55E]/30 flex items-center justify-center">
-              <p className="text-[10px] font-semibold text-[#22C55E]">ALLOWED</p>
+            <div className="h-7 w-20 shrink-0 rounded-lg bg-[#22C55E]/8 border border-[#22C55E]/25 flex items-center justify-center">
+              <p className="text-[10px] font-semibold text-[#15803D]">ALLOWED</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Notification row */}
-      <div className="mt-5 pt-4 border-t border-[#1A1A2E] flex items-center gap-3">
+      <div className="mt-5 pt-4 border-t border-[#DBEAFE] flex items-center gap-3">
         <div className="h-6 w-6 rounded-full bg-[#F59E0B]/10 flex items-center justify-center text-xs shrink-0">🔔</div>
-        <p className="text-xs text-[#64748B]">
+        <p className="text-xs text-[#475569]">
           Every blocked request is logged and you get a notification — so you always know what your child tried to access.
         </p>
       </div>
@@ -95,15 +94,15 @@ function FlowDiagram() {
 
 export function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 border-t border-[#1A1A2E]">
+    <section id="how-it-works" className="py-24 border-t border-[#DBEAFE]">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
         <div className="mb-12">
           <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">How it works</p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight max-w-xl">
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight max-w-xl">
             Blocked before it<br />even loads
           </h2>
-          <p className="text-[#64748B] mt-4 max-w-lg leading-relaxed">
+          <p className="text-[#475569] mt-4 max-w-lg leading-relaxed">
             Guardian works at the DNS level — the first step every device takes before opening any website or app.
             That means we can block content before a single byte is downloaded.
           </p>
@@ -126,13 +125,13 @@ export function HowItWorksSection() {
                 <div className="flex items-center gap-3 mb-5">
                   <div
                     className="h-11 w-11 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                    style={{ background: s.color + '18', color: s.color }}
+                    style={{ background: s.color + '15', color: s.color }}
                   >
                     {s.num}
                   </div>
                 </div>
-                <h3 className="font-semibold text-[#F1F5F9] mb-2">{s.title}</h3>
-                <p className="text-sm text-[#64748B] leading-relaxed">{s.description}</p>
+                <h3 className="font-semibold text-[#0F172A] mb-2">{s.title}</h3>
+                <p className="text-sm text-[#475569] leading-relaxed">{s.description}</p>
               </div>
             </div>
           ))}

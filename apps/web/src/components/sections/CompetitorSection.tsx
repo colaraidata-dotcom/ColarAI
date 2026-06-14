@@ -30,34 +30,34 @@ const features = [
 ];
 
 function Cell({ value }: { value: boolean | 'partial' | string }) {
-  if (value === true) return <CheckCircle2 className="h-5 w-5 text-[#22C55E] mx-auto" />;
-  if (value === false) return <XCircle className="h-5 w-5 text-[#64748B] mx-auto" />;
-  return <MinusCircle className="h-5 w-5 text-[#F59E0B] mx-auto" />;
+  if (value === true) return <CheckCircle2 className="h-5 w-5 text-[#15803D] mx-auto" />;
+  if (value === false) return <XCircle className="h-5 w-5 text-[#BFDBFE] mx-auto" />;
+  return <MinusCircle className="h-5 w-5 text-[#B45309] mx-auto" />;
 }
 
 export function CompetitorSection() {
   return (
-    <section className="py-24 bg-[#0D0D1A]/50">
+    <section className="py-24 bg-[#EEF3FF]/50">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#F1F5F9] mb-4">
+          <h2 className="text-4xl font-bold text-[#0F172A] mb-4">
             Why Guardian?
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+          <p className="text-[#475569] text-lg max-w-2xl mx-auto">
             Built to fill the gaps that existing tools leave behind.
           </p>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-[#1A1A2E]">
+        <div className="overflow-x-auto rounded-2xl border border-[#DBEAFE]">
           <table className="w-full min-w-[700px]">
             <thead>
-              <tr className="border-b border-[#1A1A2E] bg-[#111120]">
-                <th className="px-5 py-4 text-left text-sm font-medium text-[#94A3B8]">Feature</th>
+              <tr className="border-b border-[#DBEAFE] bg-[#EEF3FF]">
+                <th className="px-5 py-4 text-left text-sm font-medium text-[#475569]">Feature</th>
                 {products.map((p) => (
                   <th
                     key={p}
                     className={`px-4 py-4 text-center text-sm font-medium ${
-                      p === 'Guardian' ? 'text-[#38BDF8]' : 'text-[#94A3B8]'
+                      p === 'Guardian' ? 'text-[#0369A1]' : 'text-[#475569]'
                     }`}
                   >
                     {p === 'Guardian' ? (
@@ -76,11 +76,11 @@ export function CompetitorSection() {
               {features.map((f, i) => (
                 <tr
                   key={f.label}
-                  className={`border-b border-[#1A1A2E] last:border-b-0 ${
-                    i % 2 === 0 ? 'bg-[#0D0D1A]' : 'bg-[#111120]'
+                  className={`border-b border-[#DBEAFE] last:border-b-0 ${
+                    i % 2 === 0 ? 'bg-white' : 'bg-[#F5F8FF]'
                   }`}
                 >
-                  <td className="px-5 py-4 text-sm text-[#CBD5E1]">{f.label}</td>
+                  <td className="px-5 py-4 text-sm text-[#334155]">{f.label}</td>
                   {f.support.map((val, idx) => (
                     <td
                       key={idx}
@@ -97,7 +97,7 @@ export function CompetitorSection() {
           </table>
         </div>
 
-        <p className="mt-4 text-center text-xs text-[#64748B]">
+        <p className="mt-4 text-center text-xs text-[#94A3B8]">
           Partial support (yellow) = available on certain platforms or with limited configuration
         </p>
       </div>

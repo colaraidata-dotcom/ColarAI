@@ -38,22 +38,22 @@ const steps = [
 
 export function CustomerJourneySection() {
   return (
-    <section className="py-24 border-t border-[#1A1A2E]">
+    <section className="py-24 border-t border-[#DBEAFE]">
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
         <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
             <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">Get started</p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight">
               Up and running<br />in under 5 minutes
             </h2>
           </div>
           <Link
             href="/sign-up"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#0EA5E9] hover:text-[#38BDF8] transition-colors shrink-0"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#0EA5E9] hover:text-[#0284C7] transition-colors shrink-0"
           >
             Start for free
-            <span className="text-[#0EA5E9]">→</span>
+            <span>→</span>
           </Link>
         </div>
 
@@ -69,40 +69,40 @@ export function CustomerJourneySection() {
                 />
               )}
 
-              <div className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] p-6 h-full">
+              <div className="rounded-2xl border border-[#DBEAFE] bg-white p-6 h-full">
                 {/* Icon + number */}
                 <div className="flex items-center gap-3 mb-5">
                   <div
                     className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: s.color + '15', border: `1px solid ${s.color}30` }}
+                    style={{ background: s.color + '12', border: `1px solid ${s.color}25` }}
                   >
                     <s.icon className="h-5 w-5" style={{ color: s.color }} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: s.color + 'aa' }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: s.color + 'cc' }}>
                       Step {s.num}
                     </p>
-                    <p className="text-xs text-[#475569]">{s.timeEstimate}</p>
+                    <p className="text-xs text-[#94A3B8]">{s.timeEstimate}</p>
                   </div>
                 </div>
 
-                <h3 className="font-semibold text-[#F1F5F9] mb-2">{s.title}</h3>
-                <p className="text-sm text-[#64748B] leading-relaxed">{s.description}</p>
+                <h3 className="font-semibold text-[#0F172A] mb-2">{s.title}</h3>
+                <p className="text-sm text-[#475569] leading-relaxed">{s.description}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* DNS plain-language callout */}
-        <div className="mt-8 rounded-2xl border border-[#0EA5E9]/15 bg-[#0EA5E9]/5 px-6 py-5 flex flex-col sm:flex-row items-start gap-5">
+        <div className="mt-8 rounded-2xl border border-[#0EA5E9]/20 bg-[#0EA5E9]/5 px-6 py-5 flex flex-col sm:flex-row items-start gap-5">
           <div className="h-10 w-10 rounded-xl bg-[#0EA5E9]/10 flex items-center justify-center shrink-0">
             <Wifi className="h-5 w-5 text-[#0EA5E9]" />
           </div>
           <div>
-            <p className="font-semibold text-[#CBD5E1] mb-1">
+            <p className="font-semibold text-[#0F172A] mb-1">
               What is a "DNS setting" and why is it that simple?
             </p>
-            <p className="text-sm text-[#64748B] leading-relaxed max-w-3xl">
+            <p className="text-sm text-[#475569] leading-relaxed max-w-3xl">
               Think of DNS as your device's address book — every time you open an app or website, your device looks up
               the address first. By pointing that lookup to Guardian, we see every request <em>before</em> it loads and
               decide: allow or block. No extra software, no traffic inspection, no slowdown.

@@ -74,13 +74,13 @@ export default function HowItWorksPage() {
       <Navbar />
       <main className="pt-24">
         {/* Hero */}
-        <section className="py-20 border-b border-[#1A1A2E]">
+        <section className="py-20 border-b border-[#DBEAFE]">
           <div className="mx-auto max-w-5xl px-6 text-center">
             <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-4">How It Works</p>
-            <h1 className="text-5xl lg:text-6xl font-bold text-[#F1F5F9] leading-tight mb-6">
+            <h1 className="text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight mb-6">
               DNS filtering,<br />explained simply
             </h1>
-            <p className="text-[#64748B] text-lg max-w-2xl mx-auto leading-relaxed">
+            <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto leading-relaxed">
               Guardian intercepts DNS queries — the first step every app takes before loading content.
               By controlling this step, we filter the internet before anything is ever sent or received.
             </p>
@@ -94,7 +94,7 @@ export default function HowItWorksPage() {
               {steps.map((s, i) => (
                 <div
                   key={s.num}
-                  className={`grid grid-cols-[80px_1fr] gap-8 py-10 ${i < steps.length - 1 ? 'border-b border-[#1A1A2E]' : ''}`}
+                  className={`grid grid-cols-[80px_1fr] gap-8 py-10 ${i < steps.length - 1 ? 'border-b border-[#DBEAFE]' : ''}`}
                 >
                   <div
                     className="h-12 w-12 rounded-xl flex items-center justify-center text-sm font-bold"
@@ -103,9 +103,9 @@ export default function HowItWorksPage() {
                     {s.num}
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-[#F1F5F9] mb-2">{s.title}</h3>
-                    <p className="text-[#94A3B8] leading-relaxed mb-3">{s.description}</p>
-                    <p className="text-sm text-[#475569] border-l-2 pl-4" style={{ borderColor: s.color + '60' }}>
+                    <h3 className="text-lg font-semibold text-[#0F172A] mb-2">{s.title}</h3>
+                    <p className="text-[#64748B] leading-relaxed mb-3">{s.description}</p>
+                    <p className="text-sm text-[#64748B] border-l-2 pl-4" style={{ borderColor: s.color + '60' }}>
                       {s.detail}
                     </p>
                   </div>
@@ -116,18 +116,18 @@ export default function HowItWorksPage() {
         </section>
 
         {/* Categories */}
-        <section className="py-24 border-t border-[#1A1A2E] bg-[#0D0D1A]">
+        <section className="py-24 border-t border-[#DBEAFE] bg-[#EEF3FF]">
           <div className="mx-auto max-w-5xl px-6">
             <div className="mb-12">
               <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">Content Categories</p>
-              <h2 className="text-3xl font-bold text-[#F1F5F9]">10 categories, fully configurable</h2>
-              <p className="text-[#64748B] mt-3 max-w-xl">Each category can be set to Allow, Block, or Limit (with daily time caps) per profile.</p>
+              <h2 className="text-3xl font-bold text-[#0F172A]">10 categories, fully configurable</h2>
+              <p className="text-[#94A3B8] mt-3 max-w-xl">Each category can be set to Allow, Block, or Limit (with daily time caps) per profile.</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {categories.map((c) => (
-                <div key={c.name} className="rounded-xl border border-[#1A1A2E] bg-[#111120] p-4">
-                  <p className="font-medium text-[#CBD5E1] text-sm mb-1">{c.name}</p>
-                  <p className="text-xs text-[#475569] leading-relaxed">{c.examples}</p>
+                <div key={c.name} className="rounded-xl border border-[#DBEAFE] bg-white p-4">
+                  <p className="font-medium text-[#334155] text-sm mb-1">{c.name}</p>
+                  <p className="text-xs text-[#64748B] leading-relaxed">{c.examples}</p>
                 </div>
               ))}
             </div>
@@ -135,11 +135,11 @@ export default function HowItWorksPage() {
         </section>
 
         {/* Rule actions */}
-        <section className="py-24 border-t border-[#1A1A2E]">
+        <section className="py-24 border-t border-[#DBEAFE]">
           <div className="mx-auto max-w-5xl px-6">
             <div className="mb-12">
-              <h2 className="text-3xl font-bold text-[#F1F5F9] mb-3">Three rule actions</h2>
-              <p className="text-[#64748B]">For each category, each profile can have one of three rules.</p>
+              <h2 className="text-3xl font-bold text-[#0F172A] mb-3">Three rule actions</h2>
+              <p className="text-[#94A3B8]">For each category, each profile can have one of three rules.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
               {[
@@ -162,12 +162,12 @@ export default function HowItWorksPage() {
                   description: 'Content is allowed up to a daily time cap (e.g. 60 min/day). After the cap, it\'s blocked.',
                 },
               ].map((a) => (
-                <div key={a.label} className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] p-6">
+                <div key={a.label} className="rounded-2xl border border-[#DBEAFE] bg-[#EEF3FF] p-6">
                   <div className="flex items-center gap-3 mb-3">
                     <a.icon className="h-5 w-5" style={{ color: a.color }} />
-                    <span className="font-semibold text-[#F1F5F9]">{a.label}</span>
+                    <span className="font-semibold text-[#0F172A]">{a.label}</span>
                   </div>
-                  <p className="text-sm text-[#64748B] leading-relaxed">{a.description}</p>
+                  <p className="text-sm text-[#94A3B8] leading-relaxed">{a.description}</p>
                 </div>
               ))}
             </div>

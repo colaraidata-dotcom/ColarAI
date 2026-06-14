@@ -95,11 +95,11 @@ export default function PricingPage() {
       <Navbar />
       <main className="pt-24">
         {/* Header */}
-        <section className="py-20 text-center border-b border-[#1A1A2E]">
+        <section className="py-20 text-center border-b border-[#DBEAFE]">
           <div className="mx-auto max-w-3xl px-6">
             <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-4">Pricing</p>
-            <h1 className="text-5xl font-bold text-[#F1F5F9] mb-4">Simple, transparent pricing</h1>
-            <p className="text-[#64748B] text-lg">No credit card required. Cancel anytime.</p>
+            <h1 className="text-5xl font-bold text-[#0F172A] mb-4">Simple, transparent pricing</h1>
+            <p className="text-[#94A3B8] text-lg">No credit card required. Cancel anytime.</p>
           </div>
         </section>
 
@@ -113,7 +113,7 @@ export default function PricingPage() {
                   className={`rounded-2xl border flex flex-col gap-6 p-7 relative ${
                     plan.highlighted
                       ? 'border-[#0EA5E9] bg-[#0EA5E9]/5'
-                      : 'border-[#1A1A2E] bg-[#0D0D1A]'
+                      : 'border-[#DBEAFE] bg-[#EEF3FF]'
                   }`}
                 >
                   {plan.highlighted && (
@@ -125,12 +125,12 @@ export default function PricingPage() {
                   )}
 
                   <div>
-                    <p className="text-sm font-medium text-[#64748B] mb-3">{plan.name}</p>
+                    <p className="text-sm font-medium text-[#94A3B8] mb-3">{plan.name}</p>
                     <div className="flex items-baseline gap-0.5">
-                      <span className="text-4xl font-bold text-[#F1F5F9]">{plan.price}</span>
-                      <span className="text-[#64748B] text-sm ml-0.5">{plan.period}</span>
+                      <span className="text-4xl font-bold text-[#0F172A]">{plan.price}</span>
+                      <span className="text-[#94A3B8] text-sm ml-0.5">{plan.period}</span>
                     </div>
-                    <p className="mt-2 text-sm text-[#64748B]">{plan.description}</p>
+                    <p className="mt-2 text-sm text-[#94A3B8]">{plan.description}</p>
                   </div>
 
                   <Link href={plan.href}>
@@ -145,7 +145,7 @@ export default function PricingPage() {
 
                   <div className="flex flex-col gap-2.5">
                     {plan.features.map((f) => (
-                      <div key={f} className="flex items-start gap-2.5 text-sm text-[#CBD5E1]">
+                      <div key={f} className="flex items-start gap-2.5 text-sm text-[#334155]">
                         <CheckCircle2 className="h-4 w-4 text-[#22C55E] shrink-0 mt-0.5" />
                         {f}
                       </div>
@@ -164,17 +164,17 @@ export default function PricingPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-24 border-t border-[#1A1A2E] bg-[#0D0D1A]">
+        <section className="py-24 border-t border-[#DBEAFE] bg-[#EEF3FF]">
           <div className="mx-auto max-w-3xl px-6">
-            <h2 className="text-3xl font-bold text-[#F1F5F9] mb-12">Frequently asked questions</h2>
+            <h2 className="text-3xl font-bold text-[#0F172A] mb-12">Frequently asked questions</h2>
             <div className="flex flex-col gap-0">
               {faqs.map((faq, i) => (
                 <div
                   key={faq.q}
-                  className={`py-7 ${i < faqs.length - 1 ? 'border-b border-[#1A1A2E]' : ''}`}
+                  className={`py-7 ${i < faqs.length - 1 ? 'border-b border-[#DBEAFE]' : ''}`}
                 >
-                  <p className="font-semibold text-[#F1F5F9] mb-2">{faq.q}</p>
-                  <p className="text-[#64748B] text-sm leading-relaxed">{faq.a}</p>
+                  <p className="font-semibold text-[#0F172A] mb-2">{faq.q}</p>
+                  <p className="text-[#94A3B8] text-sm leading-relaxed">{faq.a}</p>
                 </div>
               ))}
             </div>

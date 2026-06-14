@@ -51,16 +51,16 @@ const platforms = [
 
 export function PlatformSection() {
   return (
-    <section className="py-24 border-t border-[#1A1A2E]">
+    <section className="py-24 border-t border-[#DBEAFE]">
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-14">
           <div>
             <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-3">Cross-Platform</p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight">
               Works on every<br />device they own
             </h2>
           </div>
-          <p className="text-[#64748B] max-w-xs text-sm leading-relaxed lg:text-right">
+          <p className="text-[#475569] max-w-xs text-sm leading-relaxed lg:text-right">
             One Guardian account covers the whole household. The same profile rules apply everywhere.
           </p>
         </div>
@@ -69,20 +69,20 @@ export function PlatformSection() {
           {platforms.map((p) => (
             <div
               key={p.name}
-              className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] p-6 flex flex-col gap-4"
+              className="rounded-2xl border border-[#DBEAFE] bg-white p-6 flex flex-col gap-4"
             >
               <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-[#111120] border border-[#1A1A2E] flex items-center justify-center text-[#64748B]">
+                <div className="h-10 w-10 rounded-xl bg-[#EEF3FF] border border-[#DBEAFE] flex items-center justify-center text-[#475569]">
                   {p.icon}
                 </div>
-                <span className="text-[10px] font-medium text-[#475569] bg-[#111120] border border-[#1A1A2E] px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-medium text-[#94A3B8] bg-[#EEF3FF] border border-[#DBEAFE] px-2 py-0.5 rounded-full">
                   {p.status}
                 </span>
               </div>
               <div>
-                <p className="font-semibold text-[#F1F5F9] mb-1">{p.name}</p>
+                <p className="font-semibold text-[#0F172A] mb-1">{p.name}</p>
                 <p className="text-xs font-medium text-[#0EA5E9] mb-2">{p.how}</p>
-                <p className="text-xs text-[#475569] leading-relaxed">{p.detail}</p>
+                <p className="text-xs text-[#94A3B8] leading-relaxed">{p.detail}</p>
               </div>
             </div>
           ))}
@@ -91,10 +91,10 @@ export function PlatformSection() {
         {/* Web dashboard — available now */}
         <div className="mt-4 rounded-2xl border border-[#0EA5E9]/20 bg-[#0EA5E9]/5 p-6 flex items-center justify-between">
           <div>
-            <p className="font-semibold text-[#F1F5F9] mb-0.5">Web Dashboard</p>
-            <p className="text-xs text-[#64748B]">Manage all profiles, view reports, approve requests — from any browser.</p>
+            <p className="font-semibold text-[#0F172A] mb-0.5">Web Dashboard</p>
+            <p className="text-xs text-[#475569]">Manage all profiles, view reports, approve requests — from any browser.</p>
           </div>
-          <span className="text-xs font-medium text-[#22C55E] bg-[#22C55E]/10 border border-[#22C55E]/20 px-3 py-1 rounded-full shrink-0">
+          <span className="text-xs font-medium text-[#15803D] bg-[#22C55E]/10 border border-[#22C55E]/20 px-3 py-1 rounded-full shrink-0">
             Available now
           </span>
         </div>

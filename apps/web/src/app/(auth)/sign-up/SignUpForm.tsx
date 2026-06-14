@@ -40,8 +40,8 @@ export function SignUpForm() {
     return (
       <div className="rounded-2xl border border-[#22C55E]/20 bg-[#22C55E]/10 p-6 text-center flex flex-col items-center gap-3">
         <CheckCircle2 className="h-8 w-8 text-[#22C55E]" />
-        <p className="font-medium text-[#F1F5F9]">Check your email</p>
-        <p className="text-sm text-[#64748B]">
+        <p className="font-medium text-[#0F172A]">Check your email</p>
+        <p className="text-sm text-[#94A3B8]">
           We sent a confirmation link. Click it to activate your account.
         </p>
       </div>
@@ -51,7 +51,7 @@ export function SignUpForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="name">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="name">
           Your name
         </label>
         <input
@@ -60,12 +60,12 @@ export function SignUpForm() {
           type="text"
           required
           placeholder="John Doe"
-          className="h-11 rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+          className="h-11 rounded-xl border border-[#DBEAFE] bg-white px-4 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="email">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="email">
           Email
         </label>
         <input
@@ -75,12 +75,12 @@ export function SignUpForm() {
           required
           autoComplete="email"
           placeholder="you@example.com"
-          className="h-11 rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+          className="h-11 rounded-xl border border-[#DBEAFE] bg-white px-4 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-[#CBD5E1]" htmlFor="password">
+        <label className="text-sm font-medium text-[#334155]" htmlFor="password">
           Password
         </label>
         <div className="relative">
@@ -91,12 +91,12 @@ export function SignUpForm() {
             required
             minLength={8}
             placeholder="Min. 8 characters"
-            className="h-11 w-full rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 pr-11 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+            className="h-11 w-full rounded-xl border border-[#DBEAFE] bg-white px-4 pr-11 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
           />
           <button
             type="button"
             onClick={() => setShowPassword((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#94A3B8] transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#64748B] transition-colors"
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
@@ -109,7 +109,7 @@ export function SignUpForm() {
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Create Account'}
       </Button>
 
-      <p className="text-center text-xs text-[#475569]">
+      <p className="text-center text-xs text-[#64748B]">
         By signing up, you agree to our Terms of Service and Privacy Policy.
       </p>
     </form>

@@ -36,10 +36,10 @@ export function TrustSection() {
     <section className="py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-[#F1F5F9] mb-4">
+          <h2 className="text-4xl font-bold text-[#0F172A] mb-4">
             Trust is part of the design
           </h2>
-          <p className="text-[#94A3B8] text-lg max-w-2xl mx-auto">
+          <p className="text-[#475569] text-lg max-w-2xl mx-auto">
             Internet safety tools often come at the cost of privacy. Guardian chose a different path.
           </p>
         </div>
@@ -50,17 +50,17 @@ export function TrustSection() {
             return (
               <div
                 key={item.title}
-                className="flex gap-5 rounded-2xl border border-[#1A1A2E] bg-[#111120] p-6"
+                className="flex gap-5 rounded-2xl border border-[#DBEAFE] bg-white p-6"
               >
                 <div
                   className="shrink-0 h-10 w-10 rounded-xl flex items-center justify-center"
-                  style={{ background: item.color + '20' }}
+                  style={{ background: item.color + '15' }}
                 >
                   <Icon className="h-5 w-5" style={{ color: item.color }} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[#F1F5F9] mb-1.5">{item.title}</h3>
-                  <p className="text-sm text-[#94A3B8] leading-relaxed">{item.description}</p>
+                  <h3 className="font-semibold text-[#0F172A] mb-1.5">{item.title}</h3>
+                  <p className="text-sm text-[#475569] leading-relaxed">{item.description}</p>
                 </div>
               </div>
             );

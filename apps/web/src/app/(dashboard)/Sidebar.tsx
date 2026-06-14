@@ -35,12 +35,12 @@ export function Sidebar({ user }: Props) {
   }
 
   return (
-    <aside className="w-64 shrink-0 flex flex-col border-r border-[#1A1A2E] bg-[#0D0D1A]">
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#1A1A2E]">
+    <aside className="w-64 shrink-0 flex flex-col border-r border-[#DBEAFE] bg-white">
+      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-[#DBEAFE]">
         <div className="h-8 w-8 rounded-lg bg-[#0EA5E9] flex items-center justify-center">
           <Shield className="h-4 w-4 text-white" />
         </div>
-        <span className="font-semibold text-[#F1F5F9]">Guardian</span>
+        <span className="font-semibold text-[#0F172A]">Guardian</span>
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
@@ -53,8 +53,8 @@ export function Sidebar({ user }: Props) {
               href={item.href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
                 isActive
-                  ? 'bg-[#0EA5E9]/15 text-[#F1F5F9] font-medium'
-                  : 'text-[#94A3B8] hover:bg-[#111120] hover:text-[#F1F5F9]'
+                  ? 'bg-[#0EA5E9]/10 text-[#0F172A] font-medium'
+                  : 'text-[#475569] hover:bg-[#EEF3FF] hover:text-[#0F172A]'
               }`}
             >
               <Icon className={`h-4 w-4 ${isActive ? 'text-[#0EA5E9]' : ''}`} />
@@ -64,21 +64,21 @@ export function Sidebar({ user }: Props) {
         })}
       </nav>
 
-      <div className="p-3 border-t border-[#1A1A2E]">
+      <div className="p-3 border-t border-[#DBEAFE]">
         <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 mb-1">
-          <div className="h-8 w-8 rounded-full bg-[#0EA5E9]/20 flex items-center justify-center text-sm font-medium text-[#0EA5E9]">
+          <div className="h-8 w-8 rounded-full bg-[#0EA5E9]/10 flex items-center justify-center text-sm font-medium text-[#0369A1]">
             {user.name.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#F1F5F9] truncate">{user.name}</p>
-            <p className="text-xs text-[#64748B] truncate">
+            <p className="text-sm font-medium text-[#0F172A] truncate">{user.name}</p>
+            <p className="text-xs text-[#94A3B8] truncate">
               {TIER_LABELS[user.tier] ?? 'Free'} Plan
             </p>
           </div>
         </div>
         <button
           onClick={signOut}
-          className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-[#64748B] hover:text-[#F1F5F9] hover:bg-[#111120] transition-colors"
+          className="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-[#94A3B8] hover:text-[#0F172A] hover:bg-[#EEF3FF] transition-colors"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

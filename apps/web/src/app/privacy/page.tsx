@@ -78,15 +78,15 @@ export default function PrivacyPage() {
       <Navbar />
       <main className="pt-24">
         {/* Header */}
-        <section className="py-20 border-b border-[#1A1A2E]">
+        <section className="py-20 border-b border-[#DBEAFE]">
           <div className="mx-auto max-w-3xl px-6">
             <p className="text-xs font-semibold text-[#0EA5E9] uppercase tracking-widest mb-4">Privacy</p>
-            <h1 className="text-5xl font-bold text-[#F1F5F9] mb-4">Privacy Policy</h1>
-            <p className="text-[#64748B] text-lg leading-relaxed max-w-2xl">
+            <h1 className="text-5xl font-bold text-[#0F172A] mb-4">Privacy Policy</h1>
+            <p className="text-[#94A3B8] text-lg leading-relaxed max-w-2xl">
               Guardian was designed with privacy as a constraint, not an afterthought.
               This document explains exactly what we collect, why, and what we don't.
             </p>
-            <p className="text-sm text-[#475569] mt-4">Last updated: June 2026</p>
+            <p className="text-sm text-[#64748B] mt-4">Last updated: June 2026</p>
           </div>
         </section>
 
@@ -105,11 +105,11 @@ export default function PrivacyPage() {
                       >
                         <Icon className="h-4.5 w-4.5" style={{ color: s.color }} />
                       </div>
-                      <h2 className="text-xl font-bold text-[#F1F5F9]">{s.title}</h2>
+                      <h2 className="text-xl font-bold text-[#0F172A]">{s.title}</h2>
                     </div>
                     <ul className="flex flex-col gap-3">
                       {s.content.map((c, i) => (
-                        <li key={i} className="flex gap-3 text-sm text-[#94A3B8] leading-relaxed">
+                        <li key={i} className="flex gap-3 text-sm text-[#64748B] leading-relaxed">
                           <span className="text-[#1A1A2E] font-mono mt-0.5">—</span>
                           {c}
                         </li>
@@ -120,9 +120,9 @@ export default function PrivacyPage() {
               })}
             </div>
 
-            <div className="mt-16 rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] p-8">
-              <h3 className="font-semibold text-[#F1F5F9] mb-2">Contact</h3>
-              <p className="text-sm text-[#64748B]">
+            <div className="mt-16 rounded-2xl border border-[#DBEAFE] bg-[#EEF3FF] p-8">
+              <h3 className="font-semibold text-[#0F172A] mb-2">Contact</h3>
+              <p className="text-sm text-[#94A3B8]">
                 Privacy questions, data requests, or GDPR enquiries:{' '}
                 <span className="text-[#0EA5E9]">privacy@guardian.io</span>
               </p>

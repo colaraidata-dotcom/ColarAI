@@ -135,16 +135,16 @@ export default function DemoPage() {
       <Navbar />
       <main className="pt-24 pb-0">
         {/* Header */}
-        <div className="border-b border-[#1A1A2E] py-10">
+        <div className="border-b border-[#DBEAFE] py-10">
           <div className="mx-auto max-w-6xl px-6 text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#0EA5E9]/25 bg-[#0EA5E9]/8 px-4 py-1.5 mb-5">
               <div className="h-1.5 w-1.5 rounded-full bg-[#22C55E] animate-pulse" />
               <span className="text-xs font-medium text-[#0EA5E9] tracking-wide uppercase">Interactive Demo — No Sign-up Required</span>
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold text-[#F1F5F9] leading-tight mb-4">
+            <h1 className="text-4xl lg:text-5xl font-bold text-[#0F172A] leading-tight mb-4">
               See Guardian in action
             </h1>
-            <p className="text-[#64748B] max-w-lg mx-auto leading-relaxed">
+            <p className="text-[#94A3B8] max-w-lg mx-auto leading-relaxed">
               Click through the profiles below to see how different rules work for each family member.
               This is what you'd see in your own dashboard.
             </p>
@@ -157,7 +157,7 @@ export default function DemoPage() {
 
             {/* Left: profile list */}
             <div className="flex flex-col gap-3">
-              <p className="text-xs font-semibold text-[#64748B] uppercase tracking-widest px-1 mb-1">Profiles</p>
+              <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-widest px-1 mb-1">Profiles</p>
               {profiles.map((p) => (
                 <button
                   key={p.id}
@@ -165,7 +165,7 @@ export default function DemoPage() {
                   className={`w-full text-left rounded-xl border p-4 transition-all ${
                     activeProfileId === p.id
                       ? 'border-[#0EA5E9]/40 bg-[#0EA5E9]/8'
-                      : 'border-[#1A1A2E] bg-[#0D0D1A] hover:border-[#252540]'
+                      : 'border-[#DBEAFE] bg-[#EEF3FF] hover:border-[#93C5FD]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -176,13 +176,13 @@ export default function DemoPage() {
                       {p.emoji}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[#F1F5F9] truncate">{p.name}</p>
-                      <p className="text-[11px] text-[#64748B]">{p.type}</p>
+                      <p className="text-sm font-semibold text-[#0F172A] truncate">{p.name}</p>
+                      <p className="text-[11px] text-[#94A3B8]">{p.type}</p>
                     </div>
-                    <ChevronRight className={`h-4 w-4 ml-auto shrink-0 transition-colors ${activeProfileId === p.id ? 'text-[#0EA5E9]' : 'text-[#475569]'}`} />
+                    <ChevronRight className={`h-4 w-4 ml-auto shrink-0 transition-colors ${activeProfileId === p.id ? 'text-[#0EA5E9]' : 'text-[#64748B]'}`} />
                   </div>
                   {activeProfileId === p.id && (
-                    <div className="mt-3 pt-3 border-t border-[#0EA5E9]/15 flex gap-4 text-xs text-[#64748B]">
+                    <div className="mt-3 pt-3 border-t border-[#0EA5E9]/15 flex gap-4 text-xs text-[#94A3B8]">
                       <span><span className="text-[#EF4444] font-semibold">{p.blockedToday}</span> blocked</span>
                       <span><span className="text-[#0EA5E9] font-semibold">{p.screenTime}</span> online</span>
                     </div>
@@ -191,16 +191,16 @@ export default function DemoPage() {
               ))}
 
               {/* Add profile hint */}
-              <div className="rounded-xl border border-dashed border-[#252540] p-4 text-center">
-                <p className="text-xs text-[#475569]">+ Add another profile</p>
+              <div className="rounded-xl border border-dashed border-[#93C5FD] p-4 text-center">
+                <p className="text-xs text-[#64748B]">+ Add another profile</p>
                 <p className="text-[10px] text-[#374151] mt-0.5">Guests, partners, employees…</p>
               </div>
             </div>
 
             {/* Right: profile detail */}
-            <div className="rounded-2xl border border-[#1A1A2E] bg-[#0D0D1A] overflow-hidden">
+            <div className="rounded-2xl border border-[#DBEAFE] bg-[#EEF3FF] overflow-hidden">
               {/* Profile header */}
-              <div className="px-6 py-5 border-b border-[#1A1A2E] flex items-center gap-4">
+              <div className="px-6 py-5 border-b border-[#DBEAFE] flex items-center gap-4">
                 <div
                   className="h-11 w-11 rounded-xl flex items-center justify-center text-lg shrink-0"
                   style={{ background: profile.color + '20', border: `1px solid ${profile.color}40` }}
@@ -208,21 +208,21 @@ export default function DemoPage() {
                   {profile.emoji}
                 </div>
                 <div>
-                  <h2 className="font-bold text-[#F1F5F9]">{profile.name}</h2>
-                  <p className="text-xs text-[#64748B]">{profile.type}</p>
+                  <h2 className="font-bold text-[#0F172A]">{profile.name}</h2>
+                  <p className="text-xs text-[#94A3B8]">{profile.type}</p>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   {profile.timeLimit && (
-                    <div className="hidden sm:flex items-center gap-2 rounded-lg bg-[#111120] border border-[#1A1A2E] px-3 py-1.5">
+                    <div className="hidden sm:flex items-center gap-2 rounded-lg bg-white border border-[#DBEAFE] px-3 py-1.5">
                       <Clock className="h-3.5 w-3.5 text-[#F59E0B]" />
-                      <span className="text-xs text-[#94A3B8]">{profile.screenTime} / {profile.timeLimit} today</span>
+                      <span className="text-xs text-[#64748B]">{profile.screenTime} / {profile.timeLimit} today</span>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Tabs */}
-              <div className="flex border-b border-[#1A1A2E]">
+              <div className="flex border-b border-[#DBEAFE]">
                 {(['overview', 'rules', 'activity'] as const).map((tab) => (
                   <button
                     key={tab}
@@ -230,7 +230,7 @@ export default function DemoPage() {
                     className={`px-5 py-3 text-xs font-semibold uppercase tracking-wider transition-colors ${
                       activeTab === tab
                         ? 'text-[#0EA5E9] border-b-2 border-[#0EA5E9]'
-                        : 'text-[#475569] hover:text-[#94A3B8]'
+                        : 'text-[#64748B] hover:text-[#64748B]'
                     }`}
                   >
                     {tab}
@@ -250,8 +250,8 @@ export default function DemoPage() {
                         { label: 'Screen time', value: profile.screenTime, color: '#0EA5E9' },
                         { label: 'Requests allowed', value: String(Math.floor(profile.blockedToday * 4.2)), color: '#22C55E' },
                       ].map((s) => (
-                        <div key={s.label} className="rounded-xl bg-[#111120] border border-[#1A1A2E] p-4">
-                          <p className="text-[10px] text-[#64748B] mb-1 uppercase tracking-wider">{s.label}</p>
+                        <div key={s.label} className="rounded-xl bg-white border border-[#DBEAFE] p-4">
+                          <p className="text-[10px] text-[#94A3B8] mb-1 uppercase tracking-wider">{s.label}</p>
                           <p className="text-xl font-bold" style={{ color: s.color }}>{s.value}</p>
                         </div>
                       ))}
@@ -260,11 +260,11 @@ export default function DemoPage() {
                     {/* Screen time bar */}
                     {profile.timeLimit && (
                       <div>
-                        <div className="flex justify-between text-xs text-[#64748B] mb-2">
+                        <div className="flex justify-between text-xs text-[#94A3B8] mb-2">
                           <span>Daily screen time</span>
                           <span>{profile.screenTime} of {profile.timeLimit} used</span>
                         </div>
-                        <div className="h-2 rounded-full bg-[#1A1A2E] overflow-hidden">
+                        <div className="h-2 rounded-full bg-[#DBEAFE] overflow-hidden">
                           <div
                             className="h-full rounded-full"
                             style={{
@@ -278,22 +278,22 @@ export default function DemoPage() {
 
                     {/* Recent blocks summary */}
                     <div>
-                      <p className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-3">Recent activity</p>
+                      <p className="text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-3">Recent activity</p>
                       <div className="flex flex-col gap-2">
                         {profile.recentEvents.slice(0, 4).map((e, i) => (
-                          <div key={i} className="flex items-center gap-3 rounded-lg bg-[#111120] border border-[#1A1A2E] px-3 py-2.5">
+                          <div key={i} className="flex items-center gap-3 rounded-lg bg-white border border-[#DBEAFE] px-3 py-2.5">
                             <div
                               className="h-1.5 w-1.5 rounded-full shrink-0"
                               style={{ background: e.action === 'blocked' ? '#EF4444' : '#22C55E' }}
                             />
-                            <span className="text-xs font-mono text-[#94A3B8] flex-1 truncate">{e.domain}</span>
+                            <span className="text-xs font-mono text-[#64748B] flex-1 truncate">{e.domain}</span>
                             <span
                               className="text-[10px] font-medium shrink-0"
                               style={{ color: categoryColors[e.category] ?? '#64748B' }}
                             >
                               {e.category}
                             </span>
-                            <span className="text-[10px] text-[#475569] shrink-0">{e.time}</span>
+                            <span className="text-[10px] text-[#64748B] shrink-0">{e.time}</span>
                           </div>
                         ))}
                       </div>
@@ -304,22 +304,22 @@ export default function DemoPage() {
                 {/* Rules tab */}
                 {activeTab === 'rules' && (
                   <div className="flex flex-col gap-3">
-                    <p className="text-sm text-[#64748B] mb-2">
+                    <p className="text-sm text-[#94A3B8] mb-2">
                       These rules apply to every device linked to this profile.
                     </p>
                     {Object.entries(profile.rules).map(([cat, rule]) => (
-                      <div key={cat} className="flex items-center justify-between rounded-lg bg-[#111120] border border-[#1A1A2E] px-4 py-3">
+                      <div key={cat} className="flex items-center justify-between rounded-lg bg-white border border-[#DBEAFE] px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div
                             className="h-2 w-2 rounded-full shrink-0"
                             style={{ background: categoryColors[cat] ?? '#64748B' }}
                           />
-                          <span className="text-sm text-[#CBD5E1] font-medium">{cat}</span>
+                          <span className="text-sm text-[#334155] font-medium">{cat}</span>
                         </div>
                         <RuleBadge rule={rule} />
                       </div>
                     ))}
-                    <p className="text-xs text-[#475569] mt-2">
+                    <p className="text-xs text-[#64748B] mt-2">
                       <Clock className="h-3 w-3 inline mr-1 text-[#F59E0B]" />
                       "Limit" means allowed up to a daily time cap (e.g. 60 min/day), then blocked.
                     </p>
@@ -329,7 +329,7 @@ export default function DemoPage() {
                 {/* Activity tab */}
                 {activeTab === 'activity' && (
                   <div className="flex flex-col gap-2">
-                    <p className="text-sm text-[#64748B] mb-3">
+                    <p className="text-sm text-[#94A3B8] mb-3">
                       Every request Guardian processes — allowed and blocked.
                     </p>
                     {profile.recentEvents.map((e, i) => (
@@ -345,14 +345,14 @@ export default function DemoPage() {
                           ? <XCircle className="h-4 w-4 text-[#EF4444] shrink-0" />
                           : <CheckCircle2 className="h-4 w-4 text-[#22C55E] shrink-0" />
                         }
-                        <span className="text-sm font-mono text-[#94A3B8] flex-1 truncate">{e.domain}</span>
+                        <span className="text-sm font-mono text-[#64748B] flex-1 truncate">{e.domain}</span>
                         <span
                           className="text-[11px] font-medium shrink-0"
                           style={{ color: categoryColors[e.category] ?? '#64748B' }}
                         >
                           {e.category}
                         </span>
-                        <span className="text-[11px] text-[#475569] shrink-0 ml-2">{e.time}</span>
+                        <span className="text-[11px] text-[#64748B] shrink-0 ml-2">{e.time}</span>
                       </div>
                     ))}
                   </div>
@@ -365,9 +365,9 @@ export default function DemoPage() {
           <div className="mt-12 rounded-2xl border border-[#0EA5E9]/20 bg-[#0EA5E9]/5 p-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Shield className="h-5 w-5 text-[#0EA5E9]" />
-              <h3 className="text-xl font-bold text-[#F1F5F9]">Ready to set this up for your family?</h3>
+              <h3 className="text-xl font-bold text-[#0F172A]">Ready to set this up for your family?</h3>
             </div>
-            <p className="text-[#64748B] mb-6 max-w-md mx-auto">
+            <p className="text-[#94A3B8] mb-6 max-w-md mx-auto">
               Create your free account in 30 seconds. One profile is free forever — no credit card needed.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
@@ -380,7 +380,7 @@ export default function DemoPage() {
               </Link>
               <Link
                 href="/how-it-works"
-                className="inline-flex items-center gap-2 rounded-xl border border-[#1A1A2E] bg-[#0D0D1A] hover:border-[#252540] text-[#94A3B8] font-medium px-6 py-3 transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl border border-[#DBEAFE] bg-[#EEF3FF] hover:border-[#93C5FD] text-[#64748B] font-medium px-6 py-3 transition-colors"
               >
                 How does it work?
               </Link>

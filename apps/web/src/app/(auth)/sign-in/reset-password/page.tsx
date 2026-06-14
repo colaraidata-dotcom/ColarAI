@@ -40,8 +40,8 @@ export default function ResetPasswordPage() {
         <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#22C55E]/15">
           <CheckCircle2 className="h-8 w-8 text-[#22C55E]" />
         </div>
-        <h1 className="text-2xl font-bold text-[#F1F5F9] mb-3">Password updated</h1>
-        <p className="text-sm text-[#64748B]">Redirecting you to sign in…</p>
+        <h1 className="text-2xl font-bold text-[#0F172A] mb-3">Password updated</h1>
+        <p className="text-sm text-[#94A3B8]">Redirecting you to sign in…</p>
       </div>
     );
   }
@@ -51,8 +51,8 @@ export default function ResetPasswordPage() {
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-[#F1F5F9]">Set new password</h1>
-        <p className="mt-2 text-sm text-[#64748B]">Choose a strong password for your account.</p>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Set new password</h1>
+        <p className="mt-2 text-sm text-[#94A3B8]">Choose a strong password for your account.</p>
       </div>
 
       {error && (
@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
           { id: 'confirm', label: 'Confirm password', value: confirm, onChange: setConfirm },
         ].map((field) => (
           <div key={field.id} className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-[#CBD5E1]" htmlFor={field.id}>
+            <label className="text-sm font-medium text-[#334155]" htmlFor={field.id}>
               {field.label}
             </label>
             <div className="relative">
@@ -79,13 +79,13 @@ export default function ResetPasswordPage() {
                 value={field.value}
                 onChange={(e) => field.onChange(e.target.value)}
                 placeholder="••••••••"
-                className="h-11 w-full rounded-xl border border-[#1A1A2E] bg-[#111120] px-4 pr-11 text-sm text-[#F1F5F9] placeholder:text-[#475569] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
+                className="h-11 w-full rounded-xl border border-[#DBEAFE] bg-white px-4 pr-11 text-sm text-[#0F172A] placeholder:text-[#64748B] outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] transition-colors"
               />
               {field.id === 'password' && (
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#475569] hover:text-[#94A3B8]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#64748B]"
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>

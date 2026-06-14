@@ -24,7 +24,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex h-screen bg-[#08080F] overflow-hidden">
+    <div className="flex h-screen bg-[#F5F8FF] overflow-hidden">
       <Sidebar user={{ name: displayName, email: userEmail, tier }} />
       <main className="flex-1 overflow-auto">
         {children}

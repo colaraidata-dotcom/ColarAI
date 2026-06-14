@@ -26,8 +26,8 @@ export default async function SignInPage({
   return (
     <div className="w-full max-w-sm">
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-[#F1F5F9]">Welcome back</h1>
-        <p className="mt-2 text-sm text-[#64748B]">Sign in to your Guardian account</p>
+        <h1 className="text-2xl font-bold text-[#0F172A]">Welcome back</h1>
+        <p className="mt-2 text-sm text-[#94A3B8]">Sign in to your Guardian account</p>
       </div>
 
       {errorMessage && (
@@ -39,12 +39,12 @@ export default async function SignInPage({
       <SignInForm next={next} />
 
       <div className="mt-4 text-center">
-        <Link href="/sign-in/forgot-password" className="text-sm text-[#64748B] hover:text-[#94A3B8] transition-colors">
+        <Link href="/sign-in/forgot-password" className="text-sm text-[#94A3B8] hover:text-[#64748B] transition-colors">
           Forgot your password?
         </Link>
       </div>
 
-      <p className="mt-4 text-center text-sm text-[#64748B]">
+      <p className="mt-4 text-center text-sm text-[#94A3B8]">
         No account?{' '}
         <Link href="/sign-up" className="text-[#0EA5E9] hover:text-[#38BDF8] transition-colors">
           Sign up free
