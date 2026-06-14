@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 
 export async function POST() {
   const supabase = await createClient();
@@ -10,11 +10,12 @@ export async function POST() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://guardian.io';
 
   // Find or look up Stripe customer by email
-  const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+  const s = getStripe();
+  const customers = await s.customers.list({ email: user.email, limit: 1 });
   const customer = customers.data[0];
   if (!customer) return NextResponse.json({ error: 'No subscription found' }, { status: 404 });
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await s.billingPortal.sessions.create({
     customer: customer.id,
     return_url: `${appUrl}/settings`,
   });

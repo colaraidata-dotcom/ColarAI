@@ -1,7 +1,11 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = process.env.RESEND_FROM ?? 'Guardian <noreply@guardian.io>';
+function getResend() {
+  if (!process.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY not configured');
+  return new Resend(process.env.RESEND_API_KEY);
+}
+
+const FROM = () => process.env.RESEND_FROM ?? 'Guardian <noreply@guardian.io>';
 
 export async function sendAccessRequestNotification(opts: {
   to: string;
@@ -11,8 +15,8 @@ export async function sendAccessRequestNotification(opts: {
   approveUrl: string;
   denyUrl: string;
 }) {
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to: opts.to,
     subject: `Access Request: ${opts.domain}`,
     html: `
@@ -42,8 +46,8 @@ export async function sendWeeklyReport(opts: {
     .map((r) => `<tr><td style="padding:6px 0;color:#0F172A">${r.domain}</td><td style="padding:6px 0;color:#B91C1C;text-align:right">${r.count}</td></tr>`)
     .join('');
 
-  return resend.emails.send({
-    from: FROM,
+  return getResend().emails.send({
+    from: FROM(),
     to: opts.to,
     subject: 'Your Guardian Weekly Report',
     html: `
