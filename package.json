@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "apps/web",
+    "apps/mobile",
     "apps/dns-worker",
     "packages/*"
   ],
@@ -16,6 +17,7 @@
     "clean": "turbo clean && rm -rf node_modules"
   },
   "dependencies": {
+    "ajv": "^8.0.0",
     "langfuse": "^3.38.20",
     "react": "19.1.0",
     "react-dom": "19.1.0"
