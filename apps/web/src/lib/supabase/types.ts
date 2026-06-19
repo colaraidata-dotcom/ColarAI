@@ -1,6 +1,8 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type ProfileType = 'child' | 'teen' | 'adult_self' | 'adult_unrestricted';
+export type ContentType = 'movie' | 'series';
+export type StreamingPlatform = 'netflix' | 'disney' | 'prime' | 'apple' | 'hbo';
 export type RuleAction = 'allow' | 'block' | 'limit';
 export type ScheduleAction = 'block_all' | 'allow_all';
 export type DevicePlatform = 'ios' | 'android' | 'macos' | 'windows';
@@ -297,6 +299,164 @@ export interface Database {
         }
         Update: {
           is_read?: boolean
+        }
+        Relationships: []
+      }
+      content_catalog: {
+        Row: {
+          id: string
+          tmdb_id: number
+          content_type: ContentType
+          title: string
+          original_title: string | null
+          description: string | null
+          release_year: number | null
+          genres: string[]
+          poster_url: string | null
+          backdrop_url: string | null
+          tmdb_rating: number | null
+          tmdb_vote_count: number
+          runtime_minutes: number | null
+          age_rating: string | null
+          platforms: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          tmdb_id: number
+          content_type: ContentType
+          title: string
+          original_title?: string | null
+          description?: string | null
+          release_year?: number | null
+          genres?: string[]
+          poster_url?: string | null
+          backdrop_url?: string | null
+          tmdb_rating?: number | null
+          tmdb_vote_count?: number
+          runtime_minutes?: number | null
+          age_rating?: string | null
+          platforms?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          title?: string
+          description?: string | null
+          genres?: string[]
+          poster_url?: string | null
+          backdrop_url?: string | null
+          tmdb_rating?: number | null
+          tmdb_vote_count?: number
+          platforms?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_scores: {
+        Row: {
+          content_id: string
+          violence: number
+          language: number
+          sexual_content: number
+          fear_factor: number
+          substance_use: number
+          themes: Json
+          recommended_min_age: number
+          guardian_safe_age: number
+          data_sources: string[]
+          scored_at: string
+          score_version: number
+        }
+        Insert: {
+          content_id: string
+          violence?: number
+          language?: number
+          sexual_content?: number
+          fear_factor?: number
+          substance_use?: number
+          themes?: Json
+          recommended_min_age?: number
+          guardian_safe_age?: number
+          data_sources?: string[]
+          scored_at?: string
+          score_version?: number
+        }
+        Update: {
+          violence?: number
+          language?: number
+          sexual_content?: number
+          fear_factor?: number
+          substance_use?: number
+          themes?: Json
+          recommended_min_age?: number
+          guardian_safe_age?: number
+          data_sources?: string[]
+          scored_at?: string
+          score_version?: number
+        }
+        Relationships: []
+      }
+      platform_availability: {
+        Row: {
+          id: number
+          content_id: string
+          platform: StreamingPlatform
+          deep_link: string | null
+          countries: string[]
+          updated_at: string
+        }
+        Insert: {
+          content_id: string
+          platform: StreamingPlatform
+          deep_link?: string | null
+          countries?: string[]
+        }
+        Update: {
+          deep_link?: string | null
+          countries?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_criteria: {
+        Row: {
+          profile_id: string
+          max_violence: number
+          max_language: number
+          max_sexual_content: number
+          max_fear_factor: number
+          max_substance_use: number
+          allowed_genres: string[]
+          blocked_themes: string[]
+          allowed_platforms: string[]
+          min_fit_score: number
+          updated_at: string
+        }
+        Insert: {
+          profile_id: string
+          max_violence?: number
+          max_language?: number
+          max_sexual_content?: number
+          max_fear_factor?: number
+          max_substance_use?: number
+          allowed_genres?: string[]
+          blocked_themes?: string[]
+          allowed_platforms?: string[]
+          min_fit_score?: number
+        }
+        Update: {
+          max_violence?: number
+          max_language?: number
+          max_sexual_content?: number
+          max_fear_factor?: number
+          max_substance_use?: number
+          allowed_genres?: string[]
+          blocked_themes?: string[]
+          allowed_platforms?: string[]
+          min_fit_score?: number
+          updated_at?: string
         }
         Relationships: []
       }
