@@ -33,9 +33,8 @@ export async function POST(request: NextRequest) {
 
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object as Stripe.Subscription;
-    const customers = await getStripe().customers.list({ limit: 1 });
-    const customer = customers.data.find((c) => c.id === sub.customer);
-    if (customer?.email) {
+    const customer = await getStripe().customers.retrieve(sub.customer as string) as Stripe.Customer;
+    if (!customer.deleted && customer.email) {
       const { data: users } = await supabase.auth.admin.listUsers();
       const user = users?.users?.find((u) => u.email === customer.email);
       if (user) {

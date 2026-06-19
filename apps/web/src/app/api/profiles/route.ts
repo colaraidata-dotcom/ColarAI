@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 import { randomBytes } from 'crypto';
 
-const VALID_TYPES = ['child', 'teen', 'self_control', 'unrestricted'] as const;
+const VALID_TYPES = ['child', 'teen', 'adult_self', 'adult_unrestricted'] as const;
 
 export async function GET() {
   const supabase = await createClient();

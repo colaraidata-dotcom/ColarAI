@@ -38,6 +38,8 @@ create table if not exists public.profiles (
   avatar_emoji          text not null default '👤',
   avatar_color          text not null default '#0EA5E9',
   is_active             boolean not null default true,
+  is_paused             boolean not null default false,
+  pause_until           timestamptz,
   daily_limit_minutes   integer check (daily_limit_minutes > 0),
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now()
@@ -143,6 +145,32 @@ create table if not exists public.notifications (
   created_at  timestamptz not null default now()
 );
 
+-- ─── PENDING OVERRIDES ─────────────────────────────────────────────────────
+-- Scheduled rule relaxations (e.g. pause filtering for 30 min)
+
+create table if not exists public.pending_overrides (
+  id            text primary key,
+  profile_id    text not null references public.profiles(id) on delete cascade,
+  account_id    uuid not null references auth.users(id) on delete cascade,
+  override_type text not null check (override_type in ('pause','allow_domain','extend_limit')),
+  domain        text,
+  duration_minutes integer not null default 30,
+  apply_at      timestamptz not null default now(),
+  applied       boolean not null default false,
+  created_at    timestamptz not null default now()
+);
+
+-- ─── SIGN-IN RATE LIMITING ─────────────────────────────────────────────────
+-- Tracks failed sign-in attempts per IP+email combo
+
+create table if not exists public.sign_in_attempts (
+  id            bigserial primary key,
+  key           text not null,    -- ip:email
+  attempted_at  timestamptz not null default now()
+);
+
+create index if not exists sign_in_attempts_key_idx on public.sign_in_attempts(key, attempted_at desc);
+
 -- ─── ROW LEVEL SECURITY ────────────────────────────────────────────────────
 
 alter table public.account_settings   enable row level security;
@@ -154,6 +182,7 @@ alter table public.site_overrides      enable row level security;
 alter table public.access_logs         enable row level security;
 alter table public.access_requests     enable row level security;
 alter table public.notifications       enable row level security;
+alter table public.pending_overrides   enable row level security;
 
 -- account_settings: user owns their row
 create policy "account_settings: own data" on public.account_settings
@@ -197,6 +226,10 @@ create policy "access_requests: own account" on public.access_requests
 
 -- notifications
 create policy "notifications: own account" on public.notifications
+  for all using (account_id = auth.uid());
+
+-- pending_overrides
+create policy "pending_overrides: own account" on public.pending_overrides
   for all using (account_id = auth.uid());
 
 -- ─── SEED: Default content rules for new profiles ──────────────────────────

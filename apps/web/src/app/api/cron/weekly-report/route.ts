@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createClient, getAuthenticatedUser, unauthorized } from '@/lib/supabase/server';
 import { sendWeeklyReport } from '@/lib/email';
+import { timingSafeEqual } from 'crypto';
 
 // GET /api/cron/weekly-report — called by Vercel Cron every Monday 08:00 UTC
 // Protected by CRON_SECRET header
 export async function GET(request: Request) {
-  const auth = request.headers.get('authorization');
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const auth = request.headers.get('authorization') ?? '';
+  const expected = `Bearer ${process.env.CRON_SECRET ?? ''}`;
+  const authBuf = Buffer.from(auth.padEnd(expected.length));
+  const expectedBuf = Buffer.from(expected.padEnd(auth.length));
+  if (authBuf.length !== expectedBuf.length || !timingSafeEqual(authBuf, expectedBuf)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -300,6 +300,22 @@ export interface Database {
         }
         Relationships: []
       }
+      sign_in_attempts: {
+        Row: {
+          id: number
+          key: string
+          attempted_at: string
+        }
+        Insert: {
+          key: string
+          attempted_at?: string
+        }
+        Update: {
+          key?: string
+          attempted_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

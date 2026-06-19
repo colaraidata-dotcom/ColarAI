@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -20,10 +19,14 @@ export function SignInForm({ next }: { next?: string }) {
 
     setError(null);
     startTransition(async () => {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError('Invalid email or password.');
+      const res = await fetch('/api/auth/sign-in', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? 'Invalid email or password.');
         return;
       }
       const dest = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
