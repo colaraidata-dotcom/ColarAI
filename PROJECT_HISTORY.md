@@ -15,7 +15,7 @@
 |--------|-----------|-------|
 | Web App (Vercel) | `https://guardian-fd0cs99tb-colarai.vercel.app` | ✅ Canlı |
 | Supabase | ref: `szyuvymdilnxbjzcpmkt` — **15 tablo** | ✅ Canlı |
-| GitHub | `github.com/Talip88/Guardian`, `main` branch | ✅ Aktif |
+| GitHub | `github.com/colaraidata-dotcom/ColarAI`, `main` branch | ✅ Aktif |
 | DNS Worker | `guardian-dns-worker.talipclk1988.workers.dev` | ✅ Canlı |
 | Mobile (Expo) | Ekranlar hazır, Supabase env eksik | ⏳ Bekliyor |
 
@@ -56,7 +56,7 @@ Bu belge, Guardian projesinde başından itibaren yapılan tüm çalışmaları 
 | Backend | Supabase (PostgreSQL + Auth + RLS) |
 | DNS Worker | Cloudflare Worker (DoH — DNS over HTTPS) |
 | Deploy | Vercel (web), Cloudflare (DNS worker) |
-| Versiyon kontrolü | GitHub → github.com/Talip88/Guardian |
+| Versiyon kontrolü | GitHub → github.com/colaraidata-dotcom/ColarAI |
 
 ---
 
@@ -215,7 +215,7 @@ Altyapı:
 
 ### 9. GitHub'a Push
 
-- `github.com/Talip88/Guardian` reposu oluşturuldu
+- `github.com/colaraidata-dotcom/ColarAI` reposu oluşturuldu
 - Classic PAT token ile ilk push yapıldı
 - `main` branch aktif
 

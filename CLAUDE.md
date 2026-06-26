@@ -10,7 +10,7 @@ Spec dosyası: Guardian_Product_Spec_v0.1.docx
 
 Tam kronoloji: `PROJECT_HISTORY.md`. Hızlı durum: `MEMORY.md` (kullanıcı belleği).
 
-**Canlı servisler:** Web (Vercel) · Supabase `szyuvymdilnxbjzcpmkt` (**15 tablo**) · DNS Worker (Cloudflare) · GitHub `Talip88/Guardian`. Mobile: ekranlar hazır, Supabase env eksik.
+**Canlı servisler:** Web (Vercel) · Supabase `szyuvymdilnxbjzcpmkt` (**15 tablo**) · DNS Worker (Cloudflare) · GitHub `colaraidata-dotcom/ColarAI`. Mobile: ekranlar hazır, Supabase env eksik.
 
 **Yapılanlar (özet):**
 - Web: landing + auth + dashboard + REST API; Vercel'de canlı
