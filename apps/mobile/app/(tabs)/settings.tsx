@@ -1,44 +1,73 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { mockAccount, mockDevices } from '@guardian/shared/mock';
-
-const settingSections = [
-  {
-    title: 'Hesap',
-    items: [
-      { icon: 'person-outline', label: 'Hesap Bilgileri', color: '#6366F1' },
-      { icon: 'card-outline', label: 'Abonelik — Family Plan', color: '#10B981' },
-      { icon: 'notifications-outline', label: 'Bildirim Ayarları', color: '#F59E0B' },
-    ],
-  },
-  {
-    title: 'Cihazlar',
-    items: [
-      { icon: 'phone-portrait-outline', label: 'Bağlı Cihazlar', color: '#8B5CF6', badge: String(mockDevices.length) },
-      { icon: 'wifi-outline', label: 'Ağ Ayarları (DNS)', color: '#06B6D4' },
-      { icon: 'add-circle-outline', label: 'Yeni Cihaz Ekle', color: '#10B981' },
-    ],
-  },
-  {
-    title: 'Gizlilik & Güvenlik',
-    items: [
-      { icon: 'lock-closed-outline', label: 'PIN Yönetimi', color: '#6366F1' },
-      { icon: 'eye-outline', label: 'Veri Saklama Ayarları', color: '#9CA3AF' },
-      { icon: 'shield-outline', label: 'Kurcalama Koruması', color: '#EF4444' },
-    ],
-  },
-  {
-    title: 'Destek',
-    items: [
-      { icon: 'help-circle-outline', label: 'Yardım Merkezi', color: '#6B7280' },
-      { icon: 'mail-outline', label: 'Destek İle İletişim', color: '#6B7280' },
-      { icon: 'document-text-outline', label: 'Gizlilik Politikası', color: '#6B7280' },
-    ],
-  },
-];
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/auth';
 
 export default function SettingsScreen() {
+  const { user, signOut } = useAuthStore();
+  const [deviceCount, setDeviceCount] = useState(0);
+  const [subscriptionTier, setSubscriptionTier] = useState('—');
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase.from('devices').select('id', { count: 'exact', head: true }).eq('account_id', user.id),
+      supabase.from('account_settings').select('subscription_tier').eq('id', user.id).single(),
+    ]).then(([devRes, settingsRes]) => {
+      setDeviceCount(devRes.count ?? 0);
+      if (settingsRes.data?.subscription_tier) {
+        setSubscriptionTier(settingsRes.data.subscription_tier);
+      }
+    });
+  }, [user]);
+
+  const handleSignOut = () => {
+    Alert.alert('Çıkış Yap', 'Hesabınızdan çıkmak istediğinizden emin misiniz?', [
+      { text: 'İptal', style: 'cancel' },
+      { text: 'Çıkış Yap', style: 'destructive', onPress: () => signOut() },
+    ]);
+  };
+
+  const displayName = user?.user_metadata?.display_name ?? user?.email?.split('@')[0] ?? 'Kullanıcı';
+  const email = user?.email ?? '';
+
+  const settingSections = [
+    {
+      title: 'Hesap',
+      items: [
+        { icon: 'person-outline', label: 'Hesap Bilgileri', color: '#6366F1' },
+        { icon: 'card-outline', label: `Abonelik — ${subscriptionTier}`, color: '#10B981' },
+        { icon: 'notifications-outline', label: 'Bildirim Ayarları', color: '#F59E0B' },
+      ],
+    },
+    {
+      title: 'Cihazlar',
+      items: [
+        { icon: 'phone-portrait-outline', label: 'Bağlı Cihazlar', color: '#8B5CF6', badge: String(deviceCount) },
+        { icon: 'wifi-outline', label: 'Ağ Ayarları (DNS)', color: '#06B6D4' },
+        { icon: 'add-circle-outline', label: 'Yeni Cihaz Ekle', color: '#10B981' },
+      ],
+    },
+    {
+      title: 'Gizlilik & Güvenlik',
+      items: [
+        { icon: 'lock-closed-outline', label: 'PIN Yönetimi', color: '#6366F1' },
+        { icon: 'eye-outline', label: 'Veri Saklama Ayarları', color: '#9CA3AF' },
+        { icon: 'shield-outline', label: 'Kurcalama Koruması', color: '#EF4444' },
+      ],
+    },
+    {
+      title: 'Destek',
+      items: [
+        { icon: 'help-circle-outline', label: 'Yardım Merkezi', color: '#6B7280' },
+        { icon: 'mail-outline', label: 'Destek İle İletişim', color: '#6B7280' },
+        { icon: 'document-text-outline', label: 'Gizlilik Politikası', color: '#6B7280' },
+      ],
+    },
+  ];
+
   return (
     <SafeAreaView style={styles.safe}>
       <Text style={styles.title}>Ayarlar</Text>
@@ -49,11 +78,13 @@ export default function SettingsScreen() {
             <Text style={{ fontSize: 24 }}>👤</Text>
           </View>
           <View style={styles.accountInfo}>
-            <Text style={styles.accountName}>{mockAccount.displayName}</Text>
-            <Text style={styles.accountEmail}>{mockAccount.email}</Text>
-            <View style={styles.planBadge}>
-              <Text style={styles.planBadgeText}>Family Plan</Text>
-            </View>
+            <Text style={styles.accountName}>{displayName}</Text>
+            <Text style={styles.accountEmail}>{email}</Text>
+            {subscriptionTier !== '—' && (
+              <View style={styles.planBadge}>
+                <Text style={styles.planBadgeText}>{subscriptionTier}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -84,7 +115,7 @@ export default function SettingsScreen() {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.signOutBtn}>
+        <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={18} color="#EF4444" />
           <Text style={styles.signOutText}>Çıkış Yap</Text>
         </TouchableOpacity>

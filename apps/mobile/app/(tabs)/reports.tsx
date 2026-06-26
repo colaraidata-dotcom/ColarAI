@@ -1,18 +1,120 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { mockProfiles, mockUsageReports } from '@guardian/shared/mock';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/auth';
+import { useProfilesStore } from '../../store/profiles';
 import { CATEGORY_MAP } from '@guardian/shared/constants';
 
-export default function ReportsScreen() {
-  const [selectedProfileId, setSelectedProfileId] = useState(mockProfiles[0].id);
-  const report = mockUsageReports[selectedProfileId];
-  const profile = mockProfiles.find((p) => p.id === selectedProfileId)!;
+interface DailyTrend {
+  date: string;
+  count: number;
+}
 
-  const hours = Math.floor((report?.totalMinutes ?? 0) / 60);
-  const mins = (report?.totalMinutes ?? 0) % 60;
-  const maxMinutes = Math.max(...(report?.dailyTrend.map((d) => d.minutes) ?? [1]));
+interface CategoryStat {
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+interface DomainStat {
+  domain: string;
+  blocked: boolean;
+  visitCount: number;
+}
+
+interface ReportData {
+  blockedCount: number;
+  allowedCount: number;
+  dailyTrend: DailyTrend[];
+  categoryBreakdown: CategoryStat[];
+  topDomains: DomainStat[];
+}
+
+export default function ReportsScreen() {
+  const { user } = useAuthStore();
+  const { profiles, fetch: fetchProfiles } = useProfilesStore();
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [report, setReport] = useState<ReportData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
+
+  useEffect(() => {
+    if (profiles.length > 0 && !selectedProfileId) {
+      setSelectedProfileId(profiles[0].id);
+    }
+  }, [profiles, selectedProfileId]);
+
+  const loadReport = useCallback(async () => {
+    if (!selectedProfileId || !user) return;
+    setIsLoading(true);
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const { data: logs, error } = await supabase
+      .from('access_logs')
+      .select('action, category, domain, created_at')
+      .eq('profile_id', selectedProfileId)
+      .gte('created_at', sevenDaysAgo.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error || !logs) {
+      setIsLoading(false);
+      setReport(null);
+      return;
+    }
+
+    const blockedCount = logs.filter((l) => l.action === 'blocked').length;
+    const allowedCount = logs.length - blockedCount;
+
+    // günlük trend (son 7 gün)
+    const dailyMap: Record<string, number> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dailyMap[d.toISOString().slice(0, 10)] = 0;
+    }
+    logs.forEach((l) => {
+      const day = l.created_at.slice(0, 10);
+      if (day in dailyMap) dailyMap[day]++;
+    });
+    const dailyTrend: DailyTrend[] = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
+
+    // kategori dağılımı
+    const catMap: Record<string, number> = {};
+    logs.forEach((l) => {
+      if (l.category) catMap[l.category] = (catMap[l.category] ?? 0) + 1;
+    });
+    const total = logs.length || 1;
+    const categoryBreakdown: CategoryStat[] = Object.entries(catMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([category, count]) => ({ category, count, percentage: Math.round((count / total) * 100) }));
+
+    // en çok erişilen domain'ler
+    const domainMap: Record<string, { count: number; hasBlocked: boolean }> = {};
+    logs.forEach((l) => {
+      if (!l.domain) return;
+      if (!domainMap[l.domain]) domainMap[l.domain] = { count: 0, hasBlocked: false };
+      domainMap[l.domain].count++;
+      if (l.action === 'blocked') domainMap[l.domain].hasBlocked = true;
+    });
+    const topDomains: DomainStat[] = Object.entries(domainMap)
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 10)
+      .map(([domain, { count, hasBlocked }]) => ({ domain, blocked: hasBlocked, visitCount: count }));
+
+    setReport({ blockedCount, allowedCount, dailyTrend, categoryBreakdown, topDomains });
+    setIsLoading(false);
+  }, [selectedProfileId, user]);
+
+  useEffect(() => { loadReport(); }, [loadReport]);
+
+  const selectedProfile = profiles.find((p) => p.id === selectedProfileId);
+  const maxCount = Math.max(...(report?.dailyTrend.map((d) => d.count) ?? [1]), 1);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -24,23 +126,32 @@ export default function ReportsScreen() {
       </View>
 
       {/* Profile selector */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.profileSelector} contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}>
-        {mockProfiles.filter((p) => mockUsageReports[p.id]).map((p) => (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.profileSelector}
+        contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+      >
+        {profiles.map((p) => (
           <TouchableOpacity
             key={p.id}
             style={[styles.profileChip, selectedProfileId === p.id && styles.profileChipActive]}
             onPress={() => setSelectedProfileId(p.id)}
           >
-            <Text style={{ fontSize: 16 }}>{p.avatarEmoji}</Text>
+            <Text style={{ fontSize: 16 }}>{p.avatar_emoji}</Text>
             <Text style={[styles.profileChipText, selectedProfileId === p.id && { color: '#818CF8' }]}>
-              {p.name}
+              {p.display_name}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {!report ? (
+        {isLoading ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color="#6366F1" />
+          </View>
+        ) : !report ? (
           <View style={styles.empty}>
             <Ionicons name="bar-chart-outline" size={48} color="#2D2D5A" />
             <Text style={styles.emptyText}>Bu profil için rapor yok</Text>
@@ -50,8 +161,8 @@ export default function ReportsScreen() {
             {/* Summary cards */}
             <View style={styles.summaryRow}>
               <View style={styles.summaryCard}>
-                <Text style={styles.summaryValue}>{hours}s {mins}dk</Text>
-                <Text style={styles.summaryLabel}>Toplam Süre</Text>
+                <Text style={styles.summaryValue}>{report.blockedCount + report.allowedCount}</Text>
+                <Text style={styles.summaryLabel}>Toplam İstek</Text>
               </View>
               <View style={styles.summaryCard}>
                 <Text style={[styles.summaryValue, { color: '#EF4444' }]}>{report.blockedCount}</Text>
@@ -69,7 +180,7 @@ export default function ReportsScreen() {
               <View style={styles.barChart}>
                 {report.dailyTrend.map((day) => {
                   const dayLabel = new Date(day.date).toLocaleDateString('tr-TR', { weekday: 'short' });
-                  const barHeight = maxMinutes > 0 ? (day.minutes / maxMinutes) * 100 : 0;
+                  const barHeight = (day.count / maxCount) * 100;
                   return (
                     <View key={day.date} style={styles.barGroup}>
                       <View style={styles.barWrapper}>
@@ -83,48 +194,52 @@ export default function ReportsScreen() {
             </View>
 
             {/* Category breakdown */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Kategori Dağılımı</Text>
-              {report.categoryBreakdown.map((item) => {
-                const cat = CATEGORY_MAP[item.category];
-                return (
-                  <View key={item.category} style={styles.categoryRow}>
-                    <View style={styles.categoryLeft}>
-                      <View style={[styles.categoryDot, { backgroundColor: cat?.color ?? '#6B7280' }]} />
-                      <Text style={styles.categoryName}>{cat?.label ?? item.category}</Text>
+            {report.categoryBreakdown.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Kategori Dağılımı</Text>
+                {report.categoryBreakdown.map((item) => {
+                  const cat = CATEGORY_MAP[item.category as keyof typeof CATEGORY_MAP];
+                  return (
+                    <View key={item.category} style={styles.categoryRow}>
+                      <View style={styles.categoryLeft}>
+                        <View style={[styles.categoryDot, { backgroundColor: (cat as any)?.color ?? '#6B7280' }]} />
+                        <Text style={styles.categoryName}>{(cat as any)?.label ?? item.category}</Text>
+                      </View>
+                      <View style={styles.categoryRight}>
+                        <Text style={styles.categoryTime}>{item.count} istek</Text>
+                        <Text style={styles.categoryPct}>{item.percentage}%</Text>
+                      </View>
+                      <View style={styles.categoryBarBg}>
+                        <View style={[styles.categoryBarFill, { width: `${item.percentage}%`, backgroundColor: (cat as any)?.color ?? '#6B7280' }]} />
+                      </View>
                     </View>
-                    <View style={styles.categoryRight}>
-                      <Text style={styles.categoryTime}>
-                        {Math.floor(item.minutes / 60)}s {item.minutes % 60}dk
-                      </Text>
-                      <Text style={styles.categoryPct}>{item.percentage}%</Text>
-                    </View>
-                    <View style={styles.categoryBarBg}>
-                      <View style={[styles.categoryBarFill, { width: `${item.percentage}%`, backgroundColor: cat?.color ?? '#6B7280' }]} />
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
+                  );
+                })}
+              </View>
+            )}
 
-            {/* Top sites */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>En Çok Ziyaret Edilen</Text>
-              {report.topSites.map((site) => (
-                <View key={site.domain} style={styles.siteRow}>
-                  <View style={[styles.siteDomain, site.blocked && { opacity: 0.5 }]}>
-                    <Ionicons name={site.blocked ? 'close-circle' : 'globe-outline'} size={14} color={site.blocked ? '#EF4444' : '#9CA3AF'} />
-                    <Text style={[styles.siteUrl, site.blocked && { textDecorationLine: 'line-through', color: '#6B7280' }]}>
-                      {site.domain}
-                    </Text>
-                    {site.blocked && <Text style={styles.blockedBadge}>Engellendi</Text>}
+            {/* Top domains */}
+            {report.topDomains.length > 0 && (
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>En Çok Erişilen</Text>
+                {report.topDomains.map((site) => (
+                  <View key={site.domain} style={styles.siteRow}>
+                    <View style={[styles.siteDomain, site.blocked && { opacity: 0.6 }]}>
+                      <Ionicons
+                        name={site.blocked ? 'close-circle' : 'globe-outline'}
+                        size={14}
+                        color={site.blocked ? '#EF4444' : '#9CA3AF'}
+                      />
+                      <Text style={[styles.siteUrl, site.blocked && { textDecorationLine: 'line-through', color: '#6B7280' }]}>
+                        {site.domain}
+                      </Text>
+                      {site.blocked && <Text style={styles.blockedBadge}>Engellendi</Text>}
+                    </View>
+                    <Text style={styles.siteTime}>{site.visitCount} istek</Text>
                   </View>
-                  <Text style={styles.siteTime}>
-                    {site.blocked ? `${site.visitCount} deneme` : `${Math.floor(site.minutes / 60)}s ${site.minutes % 60}dk`}
-                  </Text>
-                </View>
-              ))}
-            </View>
+                ))}
+              </View>
+            )}
           </>
         )}
       </ScrollView>
@@ -149,6 +264,7 @@ const styles = StyleSheet.create({
   profileChipActive: { borderColor: '#6366F1', backgroundColor: '#6366F115' },
   profileChipText: { fontSize: 13, fontWeight: '500', color: '#9CA3AF' },
   scroll: { padding: 20, gap: 20, paddingBottom: 60 },
+  centered: { paddingTop: 80, alignItems: 'center' },
   empty: { alignItems: 'center', gap: 12, paddingTop: 80 },
   emptyText: { fontSize: 15, color: '#6B7280' },
   summaryRow: { flexDirection: 'row', gap: 10 },

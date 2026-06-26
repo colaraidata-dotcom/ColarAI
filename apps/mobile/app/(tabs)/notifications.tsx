@@ -1,8 +1,27 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { mockNotifications, mockAccessRequests } from '@guardian/shared/mock';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/auth';
+
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+interface AccessRequest {
+  id: string;
+  domain: string;
+  reason: string | null;
+  status: string;
+  profiles: { display_name: string; avatar_emoji: string } | null;
+}
 
 const notifIcon: Record<string, { name: keyof typeof Ionicons.glyphMap; color: string }> = {
   access_request: { name: 'time-outline', color: '#F59E0B' },
@@ -14,13 +33,76 @@ const notifIcon: Record<string, { name: keyof typeof Ionicons.glyphMap; color: s
 
 export default function NotificationsScreen() {
   const router = useRouter();
-  const pendingRequests = mockAccessRequests.filter((r) => r.status === 'pending');
+  const { user } = useAuthStore();
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<AccessRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+
+    const [notifsRes, requestsRes] = await Promise.all([
+      supabase
+        .from('notifications')
+        .select('id, type, title, body, is_read, created_at')
+        .eq('account_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+      supabase
+        .from('access_requests')
+        .select('id, domain, reason, status, profiles(display_name, avatar_emoji)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false }),
+    ]);
+
+    setNotifications((notifsRes.data ?? []) as Notification[]);
+    setPendingRequests((requestsRes.data ?? []) as unknown as AccessRequest[]);
+    setIsLoading(false);
+  }, [user]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const markAllRead = async () => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('account_id', user.id)
+      .eq('is_read', false);
+    if (!error) {
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    }
+  };
+
+  const respondToRequest = async (id: string, status: 'approved' | 'denied') => {
+    const { error } = await supabase
+      .from('access_requests')
+      .update({ status, responded_at: new Date().toISOString() })
+      .eq('id', id);
+    if (error) {
+      Alert.alert('Hata', error.message);
+    } else {
+      setPendingRequests((prev) => prev.filter((r) => r.id !== id));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <Text style={styles.title}>Bildirimler</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={markAllRead}>
           <Text style={styles.markAll}>Tümünü okundu işaretle</Text>
         </TouchableOpacity>
       </View>
@@ -37,19 +119,25 @@ export default function NotificationsScreen() {
               >
                 <View style={styles.reqLeft}>
                   <View style={styles.reqEmoji}>
-                    <Text style={{ fontSize: 22 }}>{req.profileEmoji}</Text>
+                    <Text style={{ fontSize: 22 }}>{req.profiles?.avatar_emoji ?? '👤'}</Text>
                   </View>
                   <View style={styles.reqInfo}>
-                    <Text style={styles.reqName}>{req.profileName}</Text>
-                    <Text style={styles.reqSite}>{req.siteName} erişimi istiyor</Text>
-                    {req.note && <Text style={styles.reqNote}>"{req.note}"</Text>}
+                    <Text style={styles.reqName}>{req.profiles?.display_name ?? 'Profil'}</Text>
+                    <Text style={styles.reqSite}>{req.domain} erişimi istiyor</Text>
+                    {req.reason ? <Text style={styles.reqNote}>"{req.reason}"</Text> : null}
                   </View>
                 </View>
                 <View style={styles.reqActions}>
-                  <TouchableOpacity style={styles.rejectBtn}>
+                  <TouchableOpacity
+                    style={styles.rejectBtn}
+                    onPress={() => respondToRequest(req.id, 'denied')}
+                  >
                     <Ionicons name="close" size={16} color="#EF4444" />
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.approveBtn}>
+                  <TouchableOpacity
+                    style={styles.approveBtn}
+                    onPress={() => respondToRequest(req.id, 'approved')}
+                  >
                     <Ionicons name="checkmark" size={16} color="#10B981" />
                   </TouchableOpacity>
                 </View>
@@ -60,29 +148,33 @@ export default function NotificationsScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Tüm Bildirimler</Text>
-          {mockNotifications.map((notif) => {
-            const icon = notifIcon[notif.type] ?? { name: 'notifications-outline' as const, color: '#6B7280' };
-            return (
-              <View
-                key={notif.id}
-                style={[styles.notifItem, !notif.read && styles.notifUnread]}
-              >
-                <View style={[styles.notifIcon, { backgroundColor: icon.color + '20' }]}>
-                  <Ionicons name={icon.name} size={18} color={icon.color} />
+          {notifications.length === 0 ? (
+            <Text style={styles.emptyText}>Bildirim yok</Text>
+          ) : (
+            notifications.map((notif) => {
+              const icon = notifIcon[notif.type] ?? { name: 'notifications-outline' as const, color: '#6B7280' };
+              return (
+                <View
+                  key={notif.id}
+                  style={[styles.notifItem, !notif.is_read && styles.notifUnread]}
+                >
+                  <View style={[styles.notifIcon, { backgroundColor: icon.color + '20' }]}>
+                    <Ionicons name={icon.name} size={18} color={icon.color} />
+                  </View>
+                  <View style={styles.notifContent}>
+                    <Text style={[styles.notifTitle, !notif.is_read && { color: '#F9FAFB' }]}>
+                      {notif.title}
+                    </Text>
+                    <Text style={styles.notifBody}>{notif.body}</Text>
+                    <Text style={styles.notifTime}>
+                      {new Date(notif.created_at).toLocaleDateString('tr-TR')}
+                    </Text>
+                  </View>
+                  {!notif.is_read && <View style={styles.unreadDot} />}
                 </View>
-                <View style={styles.notifContent}>
-                  <Text style={[styles.notifTitle, !notif.read && { color: '#F9FAFB' }]}>
-                    {notif.title}
-                  </Text>
-                  <Text style={styles.notifBody}>{notif.body}</Text>
-                  <Text style={styles.notifTime}>
-                    {new Date(notif.createdAt).toLocaleDateString('tr-TR')}
-                  </Text>
-                </View>
-                {!notif.read && <View style={styles.unreadDot} />}
-              </View>
-            );
-          })}
+              );
+            })
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -91,6 +183,8 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0F0F23' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontSize: 13, color: '#6B7280', fontStyle: 'italic' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 12,

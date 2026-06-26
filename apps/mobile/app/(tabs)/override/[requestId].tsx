@@ -1,10 +1,17 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { mockAccessRequests } from '@guardian/shared/mock';
-import { CATEGORY_MAP } from '@guardian/shared/constants';
+import { supabase } from '../../../lib/supabase';
+
+interface AccessRequest {
+  id: string;
+  domain: string;
+  reason: string | null;
+  status: string;
+  profiles: { display_name: string; avatar_emoji: string } | null;
+}
 
 const DURATION_OPTIONS = [
   { label: '30 dakika', minutes: 30 },
@@ -15,25 +22,70 @@ const DURATION_OPTIONS = [
 export default function OverrideScreen() {
   const { requestId } = useLocalSearchParams<{ requestId: string }>();
   const router = useRouter();
-  const request = mockAccessRequests.find((r) => r.id === requestId) ?? mockAccessRequests[0];
+  const [request, setRequest] = useState<AccessRequest | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedDuration, setSelectedDuration] = useState(0);
-  const category = CATEGORY_MAP[request.category];
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleApprove = () => {
-    Alert.alert(
-      'Onaylandı',
-      `${request.profileName} için ${DURATION_OPTIONS[selectedDuration].label} süreyle ${request.siteName} erişimi açıldı.`,
-      [{ text: 'Tamam', onPress: () => router.back() }]
-    );
+  useEffect(() => {
+    if (!requestId) return;
+    supabase
+      .from('access_requests')
+      .select('id, domain, reason, status, profiles(display_name, avatar_emoji)')
+      .eq('id', requestId)
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data) setRequest(data as unknown as AccessRequest);
+        setIsLoading(false);
+      });
+  }, [requestId]);
+
+  const respond = async (status: 'approved' | 'denied') => {
+    if (!request) return;
+    setIsSaving(true);
+    const { error } = await supabase
+      .from('access_requests')
+      .update({ status, responded_at: new Date().toISOString() })
+      .eq('id', request.id);
+    setIsSaving(false);
+
+    if (error) {
+      Alert.alert('Hata', error.message);
+      return;
+    }
+
+    const label = status === 'approved' ? 'Onaylandı' : 'Reddedildi';
+    const msg = status === 'approved'
+      ? `${request.profiles?.display_name ?? 'Profil'} için ${DURATION_OPTIONS[selectedDuration].label} süreyle ${request.domain} erişimi açıldı.`
+      : `${request.profiles?.display_name ?? 'Profil'}'in isteği reddedildi.`;
+    Alert.alert(label, msg, [{ text: 'Tamam', onPress: () => router.back() }]);
   };
 
-  const handleReject = () => {
-    Alert.alert(
-      'Reddedildi',
-      `${request.profileName}'in isteği reddedildi.`,
-      [{ text: 'Tamam', onPress: () => router.back() }]
+  const handleApprove = () => respond('approved');
+  const handleReject = () => respond('denied');
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      </SafeAreaView>
     );
-  };
+  }
+
+  if (!request) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>İstek bulunamadı</Text>
+          <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
+            <Text style={styles.backLinkText}>Geri dön</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -49,27 +101,21 @@ export default function OverrideScreen() {
         {/* Profile */}
         <View style={styles.profileSection}>
           <View style={styles.profileEmoji}>
-            <Text style={{ fontSize: 40 }}>{request.profileEmoji}</Text>
+            <Text style={{ fontSize: 40 }}>{request.profiles?.avatar_emoji ?? '👤'}</Text>
           </View>
-          <Text style={styles.profileName}>{request.profileName}</Text>
+          <Text style={styles.profileName}>{request.profiles?.display_name ?? 'Profil'}</Text>
           <Text style={styles.profileSub}>şu siteye erişmek istiyor</Text>
         </View>
 
         {/* Site info */}
         <View style={styles.siteCard}>
-          <View style={[styles.categoryBadge, { backgroundColor: category?.color + '20' }]}>
-            <Text style={[styles.categoryLabel, { color: category?.color }]}>
-              {category?.label ?? request.category}
-            </Text>
-          </View>
-          <Text style={styles.siteName}>{request.siteName}</Text>
-          <Text style={styles.siteUrl}>{request.url}</Text>
-          {request.note && (
+          <Text style={styles.siteName}>{request.domain}</Text>
+          {request.reason ? (
             <View style={styles.noteBox}>
               <Ionicons name="chatbubble-outline" size={14} color="#9CA3AF" />
-              <Text style={styles.noteText}>"{request.note}"</Text>
+              <Text style={styles.noteText}>"{request.reason}"</Text>
             </View>
-          )}
+          ) : null}
         </View>
 
         {/* Duration selection */}
@@ -92,15 +138,21 @@ export default function OverrideScreen() {
 
         {/* Action buttons */}
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.rejectBtn} onPress={handleReject}>
+          <TouchableOpacity style={styles.rejectBtn} onPress={handleReject} disabled={isSaving}>
             <Ionicons name="close-circle-outline" size={22} color="#EF4444" />
             <Text style={styles.rejectBtnText}>Reddet</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.approveBtn} onPress={handleApprove}>
-            <Ionicons name="checkmark-circle" size={22} color="#fff" />
-            <Text style={styles.approveBtnText}>
-              {DURATION_OPTIONS[selectedDuration].label} için Onayla
-            </Text>
+          <TouchableOpacity style={styles.approveBtn} onPress={handleApprove} disabled={isSaving}>
+            {isSaving ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={22} color="#fff" />
+                <Text style={styles.approveBtnText}>
+                  {DURATION_OPTIONS[selectedDuration].label} için Onayla
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </View>
@@ -110,6 +162,10 @@ export default function OverrideScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0F0F23' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  errorText: { fontSize: 15, color: '#EF4444' },
+  backLink: { padding: 8 },
+  backLinkText: { fontSize: 14, color: '#818CF8' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#2D2D5A',
@@ -129,10 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E1E3F', borderRadius: 20, padding: 20,
     borderWidth: 1, borderColor: '#2D2D5A', gap: 10, alignItems: 'center',
   },
-  categoryBadge: { borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4 },
-  categoryLabel: { fontSize: 12, fontWeight: '600' },
   siteName: { fontSize: 24, fontWeight: '700', color: '#F9FAFB' },
-  siteUrl: { fontSize: 14, color: '#9CA3AF', fontFamily: 'monospace' },
   noteBox: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 4 },
   noteText: { fontSize: 13, color: '#9CA3AF', fontStyle: 'italic', flex: 1, textAlign: 'center' },
   durationSection: { gap: 12 },

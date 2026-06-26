@@ -41,11 +41,62 @@ function categorizeDomain(domain: string): string | null {
 
 const VALID_CATEGORIES = new Set(Object.keys(CATEGORY_PATTERNS));
 
-async function aiCategorizeDomain(env: Env, domain: string): Promise<string | null> {
+// L2: shared, persistent category cache in Supabase. Returns { hit } so a
+// negative cache (category = null) is distinguishable from a row-not-found miss.
+async function getDomainCategoryFromDb(env: Env, domain: string): Promise<{ hit: boolean; category: string | null }> {
+  try {
+    const resp = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/domain_categories?domain=eq.${encodeURIComponent(domain)}&select=category`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+        },
+      }
+    );
+    const rows = (await resp.json()) as Array<{ category: string | null }>;
+    if (!rows?.length) return { hit: false, category: null };
+    return { hit: true, category: rows[0].category };
+  } catch {
+    return { hit: false, category: null };
+  }
+}
+
+async function putDomainCategoryToDb(env: Env, domain: string, category: string | null): Promise<void> {
+  try {
+    await fetch(`${env.SUPABASE_URL}/rest/v1/domain_categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': env.SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ domain, category, source: 'ai', updated_at: new Date().toISOString() }),
+    });
+  } catch {
+    // Best-effort persistence; failure just means the next miss re-classifies.
+  }
+}
+
+// Cache-first cascade: KV (L1, per-edge) → Supabase (L2, shared/persistent) → AI (L3).
+// Each domain is classified at most once; every later lookup reads from cache.
+async function resolveDomainCategory(env: Env, domain: string): Promise<string | null> {
   const cacheKey = `ai_cat:${domain}`;
+
+  // L1 — KV edge cache
   const cached = await env.DNS_CACHE.get(cacheKey);
   if (cached !== null) return cached === '' ? null : cached;
 
+  // L2 — shared persistent DB cache (warms KV on hit)
+  const db = await getDomainCategoryFromDb(env, domain);
+  if (db.hit) {
+    await env.DNS_CACHE.put(cacheKey, db.category ?? '', { expirationTtl: 86400 });
+    return db.category;
+  }
+
+  // L3 — AI classification for the long tail (only if AI is bound)
+  if (!env.AI) return null;
   try {
     const resp = await (env.AI as any).run('@cf/meta/llama-3-8b-instruct', {
       messages: [
@@ -59,8 +110,9 @@ async function aiCategorizeDomain(env: Env, domain: string): Promise<string | nu
     });
     const text = (resp as { response?: string })?.response?.trim().toLowerCase() ?? '';
     const category = VALID_CATEGORIES.has(text) ? text : null;
-    // Cache AI result for 24h to avoid repeated inference costs
+    // Write back to both cache layers so this AI call is never repeated.
     await env.DNS_CACHE.put(cacheKey, category ?? '', { expirationTtl: 86400 });
+    await putDomainCategoryToDb(env, domain, category);
     return category;
   } catch {
     return null;
@@ -246,9 +298,9 @@ async function shouldBlock(
   // Pattern-based categorization first (fast, no API cost)
   let category = categorizeDomain(domain);
 
-  // If uncategorized and AI is bound, try AI classification
-  if (!category && rules.length > 0 && env.AI) {
-    category = await aiCategorizeDomain(env, domain);
+  // If uncategorized, fall through the cache-first cascade (KV → DB → AI)
+  if (!category && rules.length > 0) {
+    category = await resolveDomainCategory(env, domain);
   }
 
   if (category) {

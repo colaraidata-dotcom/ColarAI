@@ -7,28 +7,32 @@
 
 ---
 
-## Şu Anki Durum (Son Güncelleme: 2026-06-14)
+## Şu Anki Durum (Son Güncelleme: 2026-06-25)
+
+> **Not:** "Guardian → ColarAI" marka değişimi konuşuldu ama riskli öğeler (canlı servis adları, alan adı) için karar beklendiğinden **henüz uygulanmadı**. İsimler hâlâ Guardian.
 
 | Katman | URL / Ref | Durum |
 |--------|-----------|-------|
 | Web App (Vercel) | `https://guardian-fd0cs99tb-colarai.vercel.app` | ✅ Canlı |
-| Supabase | ref: `szyuvymdilnxbjzcpmkt` | ✅ Canlı |
+| Supabase | ref: `szyuvymdilnxbjzcpmkt` — **15 tablo** | ✅ Canlı |
 | GitHub | `github.com/Talip88/Guardian`, `main` branch | ✅ Aktif |
 | DNS Worker | `guardian-dns-worker.talipclk1988.workers.dev` | ✅ Canlı |
 | Mobile (Expo) | Ekranlar hazır, Supabase env eksik | ⏳ Bekliyor |
 
 ### Bekleyen İşler (öncelik sırasıyla)
-1. **Mobile env** → `apps/mobile/.env` dosyasına Supabase URL + anon key ekle
-2. **Langfuse** → `cloud.langfuse.com`'dan key al → `.env` dosyasına ekle
-3. **GitHub Secret** → repo Settings → Secrets → `CLAUDE_API_KEY` ekle (security-review Action için)
-4. **Custom domain** → Vercel dashboard'dan bağla
-5. **Email sender** → Supabase Auth → SMTP → Sender name: "Guardian"
+1. **Mobile env** → `apps/mobile/.env`: `EXPO_PUBLIC_SUPABASE_URL` + `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+2. **ColarAI rebrand kararı** → canlı servis adları/alan adı dahil mi? + GitHub hesap değişikliği
+3. **GitHub token güvenliği** → remote URL'de açık PAT var (`ghp_...`) → revoke + keychain'e taşı
+4. **TMDB ingest** → `TMDB_API_READ_TOKEN` (v4 token, ücretsiz) + `ANTHROPIC_API_KEY` (scorer, ücretli) — şimdilik sample data kullanılıyor
+5. **Custom domain** + **Email sender adı** + **Langfuse** + **GitHub `CLAUDE_API_KEY` secret**
 
 ### Kritik Bilgiler
-- Supabase schema: `supabase/schema.sql` — **zaten çalıştırıldı**, tekrar çalıştırma
+- Supabase schema: `supabase/schema.sql` — temel + içerik hub + domain_categories hepsi canlıda
+- Migration'lar: `migration-001` (overrides), `migration-002` (domain_categories), `migration-003` (content hub) — **hepsi canlıya uygulandı**
+- Sample içerik: `supabase/seed-sample-content.sql` — 12 film/dizi + skor (canlıda)
 - Vercel build config: `apps/web/vercel.json`
-- DNS Worker deploy adımları: bu dosyanın Bölüm 4 (DNS Worker) kısmı + `BACKEND_SETUP.md`
 - E2E testler: `npx playwright test` — 27/27 geçiyor (web app)
+- Rakip analizi & strateji: bellek `competitive-strategy.md` (dual-identity kaması, bypass direnci en kritik boşluk)
 
 ---
 
@@ -309,3 +313,63 @@ Rehber: `Guardian_Agent_Team_Rehberi.docx`
 - **Project ref:** `szyuvymdilnxbjzcpmkt`
 - **Dashboard:** `https://supabase.com/dashboard/project/szyuvymdilnxbjzcpmkt`
 - **URL:** `https://szyuvymdilnxbjzcpmkt.supabase.co`
+
+---
+
+### 13. İçerik Sınıflandırma Hub'ı (2026-06-14 sonrası, kod mevcuttu)
+
+Film/dizi keşfi + güvenlik skorlama altyapısı (`schema.sql`'de tanımlıydı, kod yazılmıştı):
+
+| Bileşen | İşlev |
+|---|---|
+| `content_catalog` | Film/dizi kataloğu (TMDB id, tür, yaş etiketi, platform) |
+| `content_scores` | Objektif zarar sinyalleri (violence, language, sexual_content, fear_factor, substance_use 0-10 + tema bayrakları) |
+| `content_criteria` | Profil başına politika eşikleri (max_*, blocked_themes, min_fit_score) |
+| `platform_availability` | İçeriğin hangi platformda olduğu |
+| `lib/content/scorer.ts` | Claude Haiku ile JSON yapılı skorlama + `calculateFitScore` politika motoru |
+| `lib/content/tmdb.ts` | TMDB v4 API (`TMDB_API_READ_TOKEN`) |
+| `api/content/catalog` + `criteria` | Katalog listeleme (profil filtreli) + kriter okuma/yazma |
+| `api/cron/ingest-content` | TMDB'den içerik çekip skorlayan cron |
+
+---
+
+### 14. Kademeli Sınıflandırma + Değer Profilleri (2026-06-25)
+
+Rakip/mimari konuşması üzerine "ucuz ve kesin önce, pahalı en sona" kademeli (cascade) sınıflandırma felsefesi projeye işlendi:
+
+- **Değer profili preset'leri** (`packages/shared/src/constants/index.ts`):
+  - `ContentTheme`, `ValueProfilePreset`, `VALUE_PROFILE_PRESETS` (İnançlı/Muhafazakâr, Modern/Seküler, Küçük Çocuk), `VALUE_PROFILE_MAP`
+  - Felsefe: yeni değer profili = model eğitmek değil, birkaç satır veri. `content_criteria`'ya birebir oturur, `categoryOverrides` ile DNS katmanını da besler.
+- **#4 Fail-safe** (`FAIL_SAFE_BY_PROFILE`, `failSafeFitScore` + `api/content/catalog/route.ts`):
+  - Skoru olmayan (uzun kuyruk) içerik artık profil tipine göre fail-safe karar alır (child/teen=block, adult=allow), `pending_classification` flag döner.
+- **#5 Preset → onboarding** (`api/content/criteria/route.ts` PUT `preset_id` + `onboarding/page.tsx`):
+  - Onboarding'de değer seçici; profil oluşunca preset `content_criteria`'ya yazılır (non-fatal).
+- **#2 Cache-first domain** (`apps/dns-worker/src/index.ts`):
+  - `aiCategorizeDomain` → `resolveDomainCategory`: KV (L1) → Supabase `domain_categories` (L2, paylaşımlı/kalıcı) → AI (L3); sonuç her iki katmana geri yazılır. Domain ömründe bir kez sınıflandırılır.
+
+Tüm tip kontrolleri (worker, shared, web) temiz geçti.
+
+---
+
+### 15. Canlı DB Migration'ları + Sample Data (2026-06-25)
+
+Supabase MCP ile canlıya uygulandı (DB'de sadece 10 temel tablo varken içerik hub eksikti):
+
+| Migration / İşlem | İçerik | Durum |
+|---|---|---|
+| `migration-002-domain-categories.sql` | `domain_categories` tablosu (negatif cache, RLS, service-role) | ✅ Uygulandı |
+| `migration-003-content-hub.sql` | `content_catalog`, `content_scores`, `platform_availability`, `content_criteria` + indeks + RLS politikaları | ✅ Uygulandı |
+| `seed-sample-content.sql` | 12 örnek film/dizi + elle yazılmış skorlar (Bluey → Squid Game, tüm güvenlik yelpazesi) | ✅ Eklendi |
+
+Sonuç: canlı DB **15 tablo**. #2/#4/#5 artık uçtan uca test edilebilir (TMDB/Anthropic maliyeti olmadan).
+
+---
+
+### 16. Rakip Analizi & Strateji (2026-06-25)
+
+`Guardian_Competitive_Analysis.xlsx` (7 rakip) analiz edildi + Haziran 2026 enforcement araştırması yapıldı, kod tabanıyla eşleştirildi.
+
+- **Kama (whitespace):** Tek kimlik-bazlı sistemde aile koruması + yetişkin öz-kontrolü birleştiren tek ürün.
+- **En kritik boşluk:** Bypass direnci — Worker sadece DoH ayarına dayanıyor; sektör çözümü iOS Supervised Mode + MDM ile DNS/VPN kilitleme.
+- **Kodda zaten var:** Freemium 1 profil, Family Pause, zaman gecikmeli/kilitli override, içerik sınıflandırma kademe.
+- Sentez belleğe kaydedildi: `competitive-strategy.md` (+ MEMORY.md index).

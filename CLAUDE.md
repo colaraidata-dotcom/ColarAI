@@ -4,6 +4,26 @@
 Guardian: profil tabanlı internet filtreleme platformu.
 Spec dosyası: Guardian_Product_Spec_v0.1.docx
 
+> **Marka:** "Guardian → ColarAI" rebrand'i konuşuldu, karar beklendiğinden henüz uygulanmadı.
+
+## Mevcut Durum (Son Güncelleme: 2026-06-25)
+
+Tam kronoloji: `PROJECT_HISTORY.md`. Hızlı durum: `MEMORY.md` (kullanıcı belleği).
+
+**Canlı servisler:** Web (Vercel) · Supabase `szyuvymdilnxbjzcpmkt` (**15 tablo**) · DNS Worker (Cloudflare) · GitHub `Talip88/Guardian`. Mobile: ekranlar hazır, Supabase env eksik.
+
+**Yapılanlar (özet):**
+- Web: landing + auth + dashboard + REST API; Vercel'de canlı
+- DNS Worker: DoH enforcement (pause/schedule/limit/override/kategori) + cache-first domain kategori (KV→Supabase→AI)
+- İçerik hub: `content_catalog/scores/criteria/platform_availability` + `scorer.ts` (objektif sinyal) + `calculateFitScore` (politika motoru)
+- Kademeli sınıflandırma: değer profili preset'leri (`VALUE_PROFILE_PRESETS`), fail-safe (`FAIL_SAFE_BY_PROFILE`), preset→onboarding
+- Canlı DB: migration-002/003 uygulandı + 12 sample içerik seed'lendi
+- Mobile (Expo): tüm ekranlar + Zustand store'lar; Supabase env bekliyor
+- Agent takımı + güvenlik review Action + tehdit modeli
+- Rakip analizi → strateji (`competitive-strategy.md` belleği)
+
+**Bekleyen (öncelik):** Mobile env → ColarAI rebrand kararı → GitHub token güvenliği (remote'ta açık PAT) → TMDB/Anthropic ingest → custom domain.
+
 ## Klasör Haritası
 - apps/mobile/       → React Native iOS ve Android
 - apps/dns-worker/   → DNS-over-HTTPS enforcement (Cloudflare Worker)

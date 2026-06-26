@@ -1,9 +1,56 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { mockProfiles, mockRules, mockSiteOverrides, mockSchedules, mockDevices } from '@guardian/shared/mock';
+import { useState, useEffect } from 'react';
+import { supabase } from '../../../../lib/supabase';
 import { CATEGORIES, PROFILE_TYPE_META } from '@guardian/shared/constants';
+
+interface ContentRule {
+  id: string;
+  category: string;
+  action: 'allow' | 'block' | 'limit';
+  daily_limit_minutes: number | null;
+}
+
+interface Schedule {
+  id: string;
+  label: string;
+  start_time: string;
+  end_time: string;
+  days: string[];
+  action: string;
+  is_active: boolean;
+}
+
+interface SiteOverride {
+  id: string;
+  domain: string;
+  action: 'allow' | 'block' | 'limit';
+}
+
+interface Device {
+  id: string;
+  display_name: string;
+  platform: string;
+  is_online: boolean;
+  last_seen_at: string | null;
+}
+
+interface ProfileDetail {
+  id: string;
+  display_name: string;
+  type: 'child' | 'teen' | 'adult_self' | 'adult_unrestricted';
+  avatar_emoji: string;
+  avatar_color: string;
+  is_active: boolean;
+  is_paused: boolean;
+  daily_limit_minutes: number | null;
+  content_rules: ContentRule[];
+  schedules: Schedule[];
+  site_overrides: SiteOverride[];
+  devices: Device[];
+}
 
 const ACTION = {
   allow: { label: 'İzinli', color: '#10B981', bg: '#10B98115' },
@@ -11,16 +58,63 @@ const ACTION = {
   limit: { label: 'Sınırlı', color: '#F59E0B', bg: '#F59E0B15' },
 } as const;
 
+const DAY_LABELS = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+// schedules.days şemada İngilizce 3-harf kodları tutar: 'Sun','Mon','Tue','Wed','Thu','Fri','Sat'
+const DAY_CODES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 export default function ProfileDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const profile = mockProfiles.find((p) => p.id === id) ?? mockProfiles[0];
+  const [profile, setProfile] = useState<ProfileDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from('profiles')
+      .select(`
+        id, display_name, type, avatar_emoji, avatar_color,
+        is_active, is_paused, daily_limit_minutes,
+        content_rules(id, category, action, daily_limit_minutes),
+        schedules(id, label, start_time, end_time, days, action, is_active),
+        site_overrides(id, domain, action),
+        devices(id, display_name, platform, is_online, last_seen_at)
+      `)
+      .eq('id', id)
+      .single()
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message);
+        else setProfile(data as unknown as ProfileDetail);
+        setIsLoading(false);
+      });
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>{error ?? 'Profil bulunamadı'}</Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={styles.backLink}>Geri dön</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const meta = PROFILE_TYPE_META[profile.type];
-  const rules = mockRules[profile.id] ?? [];
-  const overrides = mockSiteOverrides[profile.id] ?? [];
-  const schedules = mockSchedules[profile.id] ?? [];
-  const devices = mockDevices.filter((d) => d.profileId === profile.id);
-  const ruleMap = Object.fromEntries(rules.map((r) => [r.category, r]));
+  const ruleMap = Object.fromEntries((profile.content_rules ?? []).map((r) => [r.category, r]));
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -29,7 +123,7 @@ export default function ProfileDetailScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="chevron-back" size={20} color="#F9FAFB" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{profile.name}</Text>
+        <Text style={styles.headerTitle}>{profile.display_name}</Text>
         <TouchableOpacity
           style={styles.editBtn}
           onPress={() => router.push(`/(tabs)/profile/${profile.id}/edit`)}
@@ -41,17 +135,17 @@ export default function ProfileDetailScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Profile hero */}
         <View style={styles.heroCard}>
-          <View style={[styles.avatar, { backgroundColor: profile.avatarColor + '22', borderColor: profile.avatarColor + '55' }]}>
-            <Text style={{ fontSize: 36 }}>{profile.avatarEmoji}</Text>
+          <View style={[styles.avatar, { backgroundColor: profile.avatar_color + '22', borderColor: profile.avatar_color + '55' }]}>
+            <Text style={{ fontSize: 36 }}>{profile.avatar_emoji}</Text>
           </View>
           <View style={styles.heroInfo}>
-            <Text style={styles.heroName}>{profile.name}</Text>
-            <Text style={styles.heroType}>{meta.label} — {meta.description}</Text>
+            <Text style={styles.heroName}>{profile.display_name}</Text>
+            <Text style={styles.heroType}>{meta?.label ?? profile.type} — {meta?.description ?? ''}</Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: profile.isActive ? '#10B98118' : '#6B728018' }]}>
-            <View style={[styles.statusDot, { backgroundColor: profile.isActive ? '#10B981' : '#6B7280' }]} />
-            <Text style={[styles.statusText, { color: profile.isActive ? '#10B981' : '#6B7280' }]}>
-              {profile.isActive ? 'Aktif' : 'Pasif'}
+          <View style={[styles.statusBadge, { backgroundColor: profile.is_active ? '#10B98118' : '#6B728018' }]}>
+            <View style={[styles.statusDot, { backgroundColor: profile.is_active ? '#10B981' : '#6B7280' }]} />
+            <Text style={[styles.statusText, { color: profile.is_active ? '#10B981' : '#6B7280' }]}>
+              {profile.is_active ? 'Aktif' : 'Pasif'}
             </Text>
           </View>
         </View>
@@ -60,20 +154,20 @@ export default function ProfileDetailScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="phone-portrait-outline" size={15} color="#22D3EE" />
-            <Text style={styles.sectionTitle}>Bağlı Cihazlar ({devices.length})</Text>
+            <Text style={styles.sectionTitle}>Bağlı Cihazlar ({profile.devices?.length ?? 0})</Text>
           </View>
-          {devices.length === 0 ? (
+          {(profile.devices ?? []).length === 0 ? (
             <Text style={styles.emptyText}>Henüz cihaz yok</Text>
           ) : (
-            devices.map((dev) => (
+            (profile.devices ?? []).map((dev) => (
               <View key={dev.id} style={styles.deviceRow}>
                 <View style={styles.deviceInfo}>
-                  <Text style={styles.deviceName}>{dev.deviceName}</Text>
-                  <Text style={styles.deviceMeta}>{dev.platform} · {dev.osVersion}</Text>
+                  <Text style={styles.deviceName}>{dev.display_name}</Text>
+                  <Text style={styles.deviceMeta}>{dev.platform}</Text>
                 </View>
-                <View style={[styles.onlineBadge, { backgroundColor: dev.isOnline ? '#10B98118' : '#6B728018' }]}>
-                  <Text style={{ fontSize: 10, color: dev.isOnline ? '#10B981' : '#6B7280', fontWeight: '500' }}>
-                    {dev.isOnline ? 'Çevrimiçi' : 'Çevrimdışı'}
+                <View style={[styles.onlineBadge, { backgroundColor: dev.is_online ? '#10B98118' : '#6B728018' }]}>
+                  <Text style={{ fontSize: 10, color: dev.is_online ? '#10B981' : '#6B7280', fontWeight: '500' }}>
+                    {dev.is_online ? 'Çevrimiçi' : 'Çevrimdışı'}
                   </Text>
                 </View>
               </View>
@@ -89,7 +183,7 @@ export default function ProfileDetailScreen() {
           </View>
           {CATEGORIES.map((cat) => {
             const rule = ruleMap[cat.id];
-            const action = rule?.action ?? 'allow';
+            const action = (rule?.action ?? 'allow') as keyof typeof ACTION;
             const cfg = ACTION[action];
             return (
               <View key={cat.id} style={styles.ruleRow}>
@@ -97,9 +191,9 @@ export default function ProfileDetailScreen() {
                   <Ionicons name="ellipse" size={8} color={cat.color} />
                 </View>
                 <Text style={styles.catLabel}>{cat.label}</Text>
-                {rule?.dailyLimitMinutes && (
-                  <Text style={styles.limitText}>{rule.dailyLimitMinutes}dk/gün</Text>
-                )}
+                {rule?.daily_limit_minutes ? (
+                  <Text style={styles.limitText}>{rule.daily_limit_minutes}dk/gün</Text>
+                ) : null}
                 <View style={[styles.actionBadge, { backgroundColor: cfg.bg }]}>
                   <Text style={[styles.actionText, { color: cfg.color }]}>{cfg.label}</Text>
                 </View>
@@ -109,22 +203,21 @@ export default function ProfileDetailScreen() {
         </View>
 
         {/* Schedules */}
-        {schedules.length > 0 && (
+        {(profile.schedules ?? []).length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="time-outline" size={15} color="#F59E0B" />
               <Text style={styles.sectionTitle}>Zaman Programları</Text>
             </View>
-            {schedules.map((sch) => (
+            {(profile.schedules ?? []).map((sch) => (
               <View key={sch.id} style={styles.scheduleCard}>
                 <View style={styles.scheduleTop}>
                   <Text style={styles.scheduleLabel}>{sch.label}</Text>
-                  <Text style={styles.scheduleTime}>{sch.startTime}–{sch.endTime}</Text>
+                  <Text style={styles.scheduleTime}>{sch.start_time}–{sch.end_time}</Text>
                 </View>
                 <View style={styles.scheduleDays}>
-                  {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((day, i) => {
-                    const dayNum = i === 6 ? 0 : i + 1;
-                    const active = sch.days.includes(dayNum);
+                  {DAY_LABELS.map((day, i) => {
+                    const active = Array.isArray(sch.days) && sch.days.includes(DAY_CODES[i]);
                     return (
                       <View key={day} style={[styles.dayChip, active && styles.dayChipActive]}>
                         <Text style={[styles.dayText, active && styles.dayTextActive]}>{day}</Text>
@@ -138,17 +231,17 @@ export default function ProfileDetailScreen() {
         )}
 
         {/* Site overrides */}
-        {overrides.length > 0 && (
+        {(profile.site_overrides ?? []).length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="globe-outline" size={15} color="#22C55E" />
               <Text style={styles.sectionTitle}>Site Özel Kurallar</Text>
             </View>
-            {overrides.map((o) => {
-              const cfg = ACTION[o.action];
+            {(profile.site_overrides ?? []).map((o) => {
+              const cfg = ACTION[o.action] ?? ACTION.allow;
               return (
                 <View key={o.id} style={styles.overrideRow}>
-                  <Text style={styles.overrideUrl}>{o.url}</Text>
+                  <Text style={styles.overrideUrl}>{o.domain}</Text>
                   <View style={[styles.actionBadge, { backgroundColor: cfg.bg }]}>
                     <Text style={[styles.actionText, { color: cfg.color }]}>{cfg.label}</Text>
                   </View>
@@ -173,6 +266,9 @@ export default function ProfileDetailScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0F0F23' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  errorText: { fontSize: 14, color: '#EF4444' },
+  backLink: { fontSize: 14, color: '#818CF8' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#2D2D5A',

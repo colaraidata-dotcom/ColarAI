@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, ArrowRight, CheckCircle2, Loader2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { VALUE_PROFILE_PRESETS } from '@guardian/shared/constants';
 import Link from 'next/link';
 
 // ─── Step 1: Profile creation ────────────────────────────────────────────────
@@ -18,6 +19,7 @@ const PROFILE_TYPES = [
 function StepProfile({ onDone }: { onDone: (profileId: string) => void }) {
   const [name, setName] = useState('');
   const [type, setType] = useState<typeof PROFILE_TYPES[number]['id']>('child');
+  const [presetId, setPresetId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +38,17 @@ function StepProfile({ onDone }: { onDone: (profileId: string) => void }) {
         return;
       }
       const data = await res.json();
+
+      // Apply the chosen value-profile preset as content criteria. Non-fatal:
+      // if it fails the profile still exists with type-based defaults.
+      if (presetId) {
+        await fetch('/api/content/criteria', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: data.id, preset_id: presetId }),
+        }).catch(() => {});
+      }
+
       onDone(data.id);
     });
   }
@@ -77,6 +90,30 @@ function StepProfile({ onDone }: { onDone: (profileId: string) => void }) {
                 <p className="text-sm font-medium text-[#0F172A]">{pt.label}</p>
                 <p className="text-xs text-[#94A3B8] mt-0.5">{pt.description}</p>
               </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <p className="text-sm font-medium text-[#334155]">
+          Content values <span className="text-[#94A3B8] font-normal">(optional)</span>
+        </p>
+        <p className="text-xs text-[#94A3B8] -mt-1">
+          Pick a values preset for movies & shows. You can fine-tune it later.
+        </p>
+        <div className="grid grid-cols-1 gap-2 mt-1">
+          {VALUE_PROFILE_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => setPresetId(presetId === preset.id ? null : preset.id)}
+              className={`flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition-all ${
+                presetId === preset.id ? 'border-[#0EA5E9] bg-[#0EA5E9]/8' : 'border-[#DBEAFE] hover:border-[#0EA5E9]/30'
+              }`}
+            >
+              <p className="text-sm font-medium text-[#0F172A]">{preset.label}</p>
+              <p className="text-xs text-[#94A3B8]">{preset.description}</p>
             </button>
           ))}
         </div>

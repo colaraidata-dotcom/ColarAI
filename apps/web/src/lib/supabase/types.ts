@@ -13,7 +13,8 @@ export type NotificationType =
   | 'weekly_report'
   | 'device_added'
   | 'limit_reached'
-  | 'tamper_attempt';
+  | 'tamper_attempt'
+  | 'harm_signal';
 export type SubscriptionTier = 'free' | 'basic' | 'family';
 
 export interface Database {

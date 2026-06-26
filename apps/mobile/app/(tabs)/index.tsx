@@ -1,17 +1,117 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  mockProfiles, mockNotifications, mockAccessRequests, mockDevices,
-} from '@guardian/shared/mock';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../store/auth';
+
+interface DashboardStats {
+  activeProfiles: number;
+  connectedDevices: number;
+  blockedToday: number;
+}
+
+interface PendingRequest {
+  id: string;
+  domain: string;
+  reason: string | null;
+  profiles: { display_name: string; avatar_emoji: string } | null;
+}
+
+interface RecentNotification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+interface ProfileRow {
+  id: string;
+  display_name: string;
+  avatar_emoji: string;
+  avatar_color: string;
+  is_active: boolean;
+  devices: Array<{ id: string; is_online: boolean }>;
+}
 
 export default function HomeScreen() {
   const router = useRouter();
-  const primaryProfile = mockProfiles[0];
-  const pendingRequests = mockAccessRequests.filter((r) => r.status === 'pending');
-  const unread = mockNotifications.filter((n) => !n.read);
-  const onlineDevices = mockDevices.filter((d) => d.isOnline);
+  const { user } = useAuthStore();
+
+  const [stats, setStats] = useState<DashboardStats>({ activeProfiles: 0, connectedDevices: 0, blockedToday: 0 });
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [notifications, setNotifications] = useState<RecentNotification[]>([]);
+  const [profiles, setProfiles] = useState<ProfileRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [profilesRes, devicesRes, blockedRes, requestsRes, notifsRes] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('id, display_name, avatar_emoji, avatar_color, is_active, devices(id, is_online)')
+        .eq('account_id', user.id)
+        .order('created_at', { ascending: true }),
+      supabase
+        .from('devices')
+        .select('id', { count: 'exact', head: true })
+        .eq('account_id', user.id),
+      supabase
+        .from('access_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('action', 'blocked')
+        .gte('created_at', today.toISOString()),
+      supabase
+        .from('access_requests')
+        .select('id, domain, reason, profiles(display_name, avatar_emoji)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(5),
+      supabase
+        .from('notifications')
+        .select('id, type, title, body, is_read, created_at')
+        .eq('account_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3),
+    ]);
+
+    const profileRows = (profilesRes.data ?? []) as ProfileRow[];
+    const activeCount = profileRows.filter((p) => p.is_active).length;
+
+    setProfiles(profileRows);
+    setStats({
+      activeProfiles: activeCount,
+      connectedDevices: devicesRes.count ?? 0,
+      blockedToday: blockedRes.count ?? 0,
+    });
+    setPendingRequests((requestsRes.data ?? []) as unknown as PendingRequest[]);
+    setNotifications((notifsRes.data ?? []) as RecentNotification[]);
+    setIsLoading(false);
+  }, [user]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const displayName = user?.user_metadata?.display_name ?? user?.email?.split('@')[0] ?? 'Kullanıcı';
+  const todayLabel = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -19,24 +119,24 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Merhaba, Ali 👋</Text>
-            <Text style={styles.date}>Pazartesi, 2 Haziran 2026</Text>
+            <Text style={styles.greeting}>Merhaba, {displayName} 👋</Text>
+            <Text style={styles.date}>{todayLabel}</Text>
           </View>
           <TouchableOpacity
             style={styles.notifBtn}
             onPress={() => router.push('/(tabs)/notifications')}
           >
             <Ionicons name="notifications-outline" size={22} color="#D1D5DB" />
-            {unread.length > 0 && <View style={styles.notifDot} />}
+            {unreadCount > 0 && <View style={styles.notifDot} />}
           </TouchableOpacity>
         </View>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
           {[
-            { label: 'Profil', value: mockProfiles.length, icon: 'people', color: '#6366F1' },
-            { label: 'Çevrimiçi Cihaz', value: onlineDevices.length, icon: 'phone-portrait', color: '#10B981' },
-            { label: 'Bugün Engellendi', value: 23, icon: 'close-circle', color: '#EF4444' },
+            { label: 'Profil', value: stats.activeProfiles, icon: 'people', color: '#6366F1' },
+            { label: 'Çevrimiçi Cihaz', value: stats.connectedDevices, icon: 'phone-portrait', color: '#10B981' },
+            { label: 'Bugün Engellendi', value: stats.blockedToday, icon: 'close-circle', color: '#EF4444' },
           ].map((s) => (
             <View key={s.label} style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: s.color + '20' }]}>
@@ -60,12 +160,12 @@ export default function HomeScreen() {
               >
                 <View style={styles.requestLeft}>
                   <View style={styles.requestEmoji}>
-                    <Text style={{ fontSize: 20 }}>{req.profileEmoji}</Text>
+                    <Text style={{ fontSize: 20 }}>{req.profiles?.avatar_emoji ?? '👤'}</Text>
                   </View>
                   <View style={styles.requestInfo}>
-                    <Text style={styles.requestName}>{req.profileName}</Text>
-                    <Text style={styles.requestSite}>{req.siteName}</Text>
-                    {req.note && <Text style={styles.requestNote}>{req.note}</Text>}
+                    <Text style={styles.requestName}>{req.profiles?.display_name ?? 'Profil'}</Text>
+                    <Text style={styles.requestSite}>{req.domain}</Text>
+                    {req.reason ? <Text style={styles.requestNote}>{req.reason}</Text> : null}
                   </View>
                 </View>
                 <Ionicons name="chevron-forward" size={16} color="#6B7280" />
@@ -82,58 +182,64 @@ export default function HomeScreen() {
               <Text style={styles.seeAll}>Tümünü gör</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.profileScroll}>
-            {mockProfiles.map((p) => {
-              const pDevices = mockDevices.filter((d) => d.profileId === p.id);
-              const online = pDevices.filter((d) => d.isOnline).length;
-              return (
-                <TouchableOpacity
-                  key={p.id}
-                  style={styles.profileCard}
-                  onPress={() => router.push(`/(tabs)/profile/${p.id}/index`)}
-                >
-                  <View
-                    style={[styles.profileAvatar, {
-                      backgroundColor: p.avatarColor + '22',
-                      borderColor: p.avatarColor + '55',
-                    }]}
+          {profiles.length === 0 ? (
+            <Text style={styles.emptyText}>Henüz profil yok</Text>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.profileScroll}>
+              {profiles.map((p) => {
+                const onlineCount = (p.devices ?? []).filter((d) => d.is_online).length;
+                const totalCount = (p.devices ?? []).length;
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    style={styles.profileCard}
+                    onPress={() => router.push(`/(tabs)/profile/${p.id}/index`)}
                   >
-                    <Text style={{ fontSize: 24 }}>{p.avatarEmoji}</Text>
-                  </View>
-                  <Text style={styles.profileName}>{p.name}</Text>
-                  <Text style={styles.profileDevices}>{online}/{pDevices.length} cihaz</Text>
-                  <View style={[styles.profileStatus, { backgroundColor: p.isActive ? '#10B98115' : '#6B728015' }]}>
-                    <View style={[styles.profileDot, { backgroundColor: p.isActive ? '#10B981' : '#6B7280' }]} />
-                    <Text style={[styles.profileStatusText, { color: p.isActive ? '#10B981' : '#6B7280' }]}>
-                      {p.isActive ? 'Aktif' : 'Pasif'}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                    <View
+                      style={[styles.profileAvatar, {
+                        backgroundColor: p.avatar_color + '22',
+                        borderColor: p.avatar_color + '55',
+                      }]}
+                    >
+                      <Text style={{ fontSize: 24 }}>{p.avatar_emoji}</Text>
+                    </View>
+                    <Text style={styles.profileName}>{p.display_name}</Text>
+                    <Text style={styles.profileDevices}>{onlineCount}/{totalCount} cihaz</Text>
+                    <View style={[styles.profileStatus, { backgroundColor: p.is_active ? '#10B98115' : '#6B728015' }]}>
+                      <View style={[styles.profileDot, { backgroundColor: p.is_active ? '#10B981' : '#6B7280' }]} />
+                      <Text style={[styles.profileStatusText, { color: p.is_active ? '#10B981' : '#6B7280' }]}>
+                        {p.is_active ? 'Aktif' : 'Pasif'}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
 
         {/* Recent notifications */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Son Bildirimler</Text>
-          {mockNotifications.slice(0, 3).map((notif) => (
-            <View key={notif.id} style={[styles.notifItem, !notif.read && styles.notifItemUnread]}>
-              <View style={styles.notifIcon}>
-                <Ionicons
-                  name={notif.type === 'access_request' ? 'time' : notif.type === 'tamper_attempt' ? 'warning' : 'notifications'}
-                  size={16}
-                  color={notif.type === 'tamper_attempt' ? '#EF4444' : '#6366F1'}
-                />
+        {notifications.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Son Bildirimler</Text>
+            {notifications.map((notif) => (
+              <View key={notif.id} style={[styles.notifItem, !notif.is_read && styles.notifItemUnread]}>
+                <View style={styles.notifIcon}>
+                  <Ionicons
+                    name={notif.type === 'access_request' ? 'time' : notif.type === 'tamper_attempt' ? 'warning' : 'notifications'}
+                    size={16}
+                    color={notif.type === 'tamper_attempt' ? '#EF4444' : '#6366F1'}
+                  />
+                </View>
+                <View style={styles.notifContent}>
+                  <Text style={styles.notifTitle}>{notif.title}</Text>
+                  <Text style={styles.notifBody}>{notif.body}</Text>
+                </View>
+                {!notif.is_read && <View style={styles.unreadDot} />}
               </View>
-              <View style={styles.notifContent}>
-                <Text style={styles.notifTitle}>{notif.title}</Text>
-                <Text style={styles.notifBody}>{notif.body}</Text>
-              </View>
-              {!notif.read && <View style={styles.unreadDot} />}
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -142,6 +248,8 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0F0F23' },
   scroll: { padding: 20, gap: 24, paddingBottom: 40 },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontSize: 13, color: '#6B7280', fontStyle: 'italic' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   greeting: { fontSize: 22, fontWeight: '700', color: '#F9FAFB' },
   date: { fontSize: 13, color: '#9CA3AF', marginTop: 2 },

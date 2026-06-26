@@ -16,6 +16,10 @@
     {
       "path": "/api/cron/ingest-content",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/harm-signals",
+      "schedule": "0 7 * * *"
     }
   ]
 }

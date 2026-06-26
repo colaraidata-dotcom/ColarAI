@@ -1,27 +1,123 @@
-import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Switch, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { mockProfiles, mockRules } from '@guardian/shared/mock';
+import { supabase } from '../../../../lib/supabase';
 import { CATEGORIES, PROFILE_TYPE_META } from '@guardian/shared/constants';
 import type { CategoryId } from '@guardian/shared/types';
+
+interface ContentRule {
+  id: string;
+  category: CategoryId;
+  action: 'allow' | 'block' | 'limit';
+  daily_limit_minutes: number | null;
+}
+
+interface ProfileRow {
+  id: string;
+  display_name: string;
+  type: 'child' | 'teen' | 'adult_self' | 'adult_unrestricted';
+  avatar_emoji: string;
+  content_rules: ContentRule[];
+}
 
 export default function RuleEditorScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const profile = mockProfiles.find((p) => p.id === id) ?? mockProfiles[0];
-  const initialRules = mockRules[profile.id] ?? [];
+  const [profile, setProfile] = useState<ProfileRow | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  // kural durumu: categoryId → 'allow' | 'block'
+  const [rules, setRules] = useState<Record<string, 'allow' | 'block'>>({});
 
-  const [rules, setRules] = useState<Record<CategoryId, 'allow' | 'block'>>(
-    Object.fromEntries(
-      initialRules.map((r) => [r.category, r.action === 'limit' ? 'allow' : r.action])
-    ) as Record<CategoryId, 'allow' | 'block'>
-  );
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from('profiles')
+      .select('id, display_name, type, avatar_emoji, content_rules(id, category, action, daily_limit_minutes)')
+      .eq('id', id)
+      .single()
+      .then(({ data, error }) => {
+        if (!error && data) {
+          const p = data as unknown as ProfileRow;
+          setProfile(p);
+          const initial: Record<string, 'allow' | 'block'> = {};
+          (p.content_rules ?? []).forEach((r) => {
+            initial[r.category] = r.action === 'block' ? 'block' : 'allow';
+          });
+          setRules(initial);
+        }
+        setIsLoading(false);
+      });
+  }, [id]);
 
-  const toggle = (categoryId: CategoryId) => {
+  const toggle = (categoryId: string) => {
     setRules((prev) => ({ ...prev, [categoryId]: prev[categoryId] === 'allow' ? 'block' : 'allow' }));
   };
+
+  const handleSave = async () => {
+    if (!profile) return;
+    setIsSaving(true);
+
+    const ruleMap = Object.fromEntries((profile.content_rules ?? []).map((r) => [r.category, r]));
+    const updates: PromiseLike<any>[] = [];
+
+    for (const cat of CATEGORIES) {
+      const newAction = rules[cat.id] ?? 'allow';
+      const existing = ruleMap[cat.id];
+      if (existing) {
+        if (existing.action !== newAction) {
+          updates.push(
+            supabase
+              .from('content_rules')
+              .update({ action: newAction })
+              .eq('id', existing.id)
+              .eq('profile_id', profile.id)
+          );
+        }
+      } else {
+        // kural yoksa insert — id'nin DB default'u yok, açıkça üretilmeli
+        updates.push(
+          supabase
+            .from('content_rules')
+            .insert({ id: `rule_${profile.id}_${cat.id}`, profile_id: profile.id, category: cat.id, action: newAction })
+        );
+      }
+    }
+
+    const results = await Promise.all(updates);
+    const hasError = results.some((r) => r.error);
+    setIsSaving(false);
+
+    if (hasError) {
+      Alert.alert('Hata', 'Bazı kurallar kaydedilemedi.');
+    } else {
+      Alert.alert('Kaydedildi', 'Kurallar güncellendi.', [
+        { text: 'Tamam', onPress: () => router.back() },
+      ]);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>Profil bulunamadı</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const meta = PROFILE_TYPE_META[profile.type];
 
@@ -33,14 +129,18 @@ export default function RuleEditorScreen() {
           <Ionicons name="chevron-back" size={20} color="#F9FAFB" />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
-          <Text style={{ fontSize: 20 }}>{profile.avatarEmoji}</Text>
+          <Text style={{ fontSize: 20 }}>{profile.avatar_emoji}</Text>
           <View>
-            <Text style={styles.headerName}>{profile.name} — Kurallar</Text>
-            <Text style={styles.headerType}>{meta.label}</Text>
+            <Text style={styles.headerName}>{profile.display_name} — Kurallar</Text>
+            <Text style={styles.headerType}>{meta?.label ?? profile.type}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.saveBtn}>
-          <Text style={styles.saveBtnText}>Kaydet</Text>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isSaving}>
+          {isSaving ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.saveBtnText}>Kaydet</Text>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -56,7 +156,7 @@ export default function RuleEditorScreen() {
         <Text style={styles.sectionSub}>Açık = İzinli, Kapalı = Engelli</Text>
 
         {CATEGORIES.map((category) => {
-          const isAllowed = rules[category.id] !== 'block';
+          const isAllowed = (rules[category.id] ?? 'allow') !== 'block';
           return (
             <View key={category.id} style={styles.ruleRow}>
               <View style={styles.ruleLeft}>
@@ -103,6 +203,8 @@ export default function RuleEditorScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0F0F23' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  errorText: { fontSize: 14, color: '#EF4444' },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#2D2D5A',
@@ -111,7 +213,7 @@ const styles = StyleSheet.create({
   headerCenter: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   headerName: { fontSize: 15, fontWeight: '600', color: '#F9FAFB' },
   headerType: { fontSize: 12, color: '#9CA3AF' },
-  saveBtn: { backgroundColor: '#6366F1', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 7 },
+  saveBtn: { backgroundColor: '#6366F1', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 7, minWidth: 70, alignItems: 'center' },
   saveBtnText: { fontSize: 14, fontWeight: '600', color: '#fff' },
   scroll: { padding: 20, gap: 12, paddingBottom: 60 },
   infoBox: {

@@ -144,3 +144,121 @@ export const SUBSCRIPTION_TIERS = {
   basic: { label: 'Basic', profileLimit: 3, deviceLimit: 5, price: 999 },
   family: { label: 'Family', profileLimit: 10, deviceLimit: 20, price: 1499 },
 };
+
+/**
+ * Objective content theme flags emitted by the AI scorer (content_scores.themes).
+ * These are descriptive signals, NOT value judgements — the value judgement lives
+ * in the policy layer below (which themes/levels a given value profile blocks).
+ */
+export type ContentTheme =
+  | 'bullying'
+  | 'darkThemes'
+  | 'war'
+  | 'romance'
+  | 'drugs'
+  | 'alcohol';
+
+/**
+ * A value profile is a reusable POLICY preset over the objective signals.
+ * Adding/tuning a community's values = editing a few rule lines here — never
+ * retraining a model. `criteria` maps 1:1 onto the content_criteria table;
+ * `categoryOverrides` forces decisions at the DNS/domain cascade layer so the
+ * same value policy governs both deep content scoring and raw domain access.
+ */
+export interface ValueProfilePreset {
+  id: string;
+  label: string;
+  labelEn: string;
+  description: string;
+  criteria: {
+    max_violence: number;
+    max_language: number;
+    max_sexual_content: number;
+    max_fear_factor: number;
+    max_substance_use: number;
+    blocked_themes: ContentTheme[];
+    min_fit_score: number;
+  };
+  categoryOverrides: Partial<Record<CategoryId, 'allow' | 'block'>>;
+}
+
+export const VALUE_PROFILE_PRESETS: ValueProfilePreset[] = [
+  {
+    id: 'faith_conservative',
+    label: 'İnançlı / Muhafazakâr',
+    labelEn: 'Faith-Conservative',
+    description:
+      'Çıplaklık ve müstehcenliğe sıfır tolerans, alkol/kumar görselleri engelli, romantik ve karanlık temalar sınırlı.',
+    criteria: {
+      max_violence: 3,
+      max_language: 1,
+      max_sexual_content: 0,
+      max_fear_factor: 4,
+      max_substance_use: 0,
+      blocked_themes: ['alcohol', 'drugs', 'romance'],
+      min_fit_score: 80,
+    },
+    categoryOverrides: { adult_content: 'block', gambling: 'block' },
+  },
+  {
+    id: 'secular_moderate',
+    label: 'Modern / Seküler',
+    labelEn: 'Secular-Moderate',
+    description:
+      'Yalnızca açık +18 içerik ve ağır şiddet engellenir; alkol/romantik temalar serbest.',
+    criteria: {
+      max_violence: 6,
+      max_language: 6,
+      max_sexual_content: 3,
+      max_fear_factor: 7,
+      max_substance_use: 5,
+      blocked_themes: [],
+      min_fit_score: 40,
+    },
+    categoryOverrides: { adult_content: 'block', gambling: 'block' },
+  },
+  {
+    id: 'young_child',
+    label: 'Küçük Çocuk (5–9)',
+    labelEn: 'Young Child',
+    description:
+      'En sıkı kademe: korku, şiddet, romantizm ve madde kullanımına yer yok; sadece yüksek uyumlu içerik.',
+    criteria: {
+      max_violence: 1,
+      max_language: 0,
+      max_sexual_content: 0,
+      max_fear_factor: 1,
+      max_substance_use: 0,
+      blocked_themes: ['bullying', 'darkThemes', 'war', 'romance', 'drugs', 'alcohol'],
+      min_fit_score: 90,
+    },
+    categoryOverrides: {
+      adult_content: 'block',
+      gambling: 'block',
+      social_media: 'block',
+    },
+  },
+];
+
+export const VALUE_PROFILE_MAP = Object.fromEntries(
+  VALUE_PROFILE_PRESETS.map((p) => [p.id, p])
+) as Record<string, ValueProfilePreset>;
+
+/**
+ * Fail-safe default for content that has not been classified yet (long tail).
+ * Deep content scoring is precomputed in the catalog; brand-new content has no
+ * score row, so until the async classifier fills it in we decide by profile:
+ * restrictive profiles block the unknown, permissive profiles allow it.
+ * (Applies to the deep-content layer only — NOT raw domain access, where
+ * blocking every uncategorized domain would break normal browsing.)
+ */
+export const FAIL_SAFE_BY_PROFILE: Record<ProfileType, 'allow' | 'block'> = {
+  child: 'block',
+  teen: 'block',
+  adult_self: 'allow',
+  adult_unrestricted: 'allow',
+};
+
+export function failSafeFitScore(profileType: ProfileType): number {
+  return FAIL_SAFE_BY_PROFILE[profileType] === 'block' ? 0 : 100;
+}

@@ -7,7 +7,7 @@
 create table if not exists public.account_settings (
   id            uuid primary key references auth.users(id) on delete cascade,
   display_name  text,
-  notification_prefs jsonb not null default '{"access_request":true,"weekly_report":true,"device_added":true,"limit_reached":true,"tamper_attempt":true}'::jsonb,
+  notification_prefs jsonb not null default '{"access_request":true,"weekly_report":true,"device_added":true,"limit_reached":true,"tamper_attempt":true,"harm_signal":true}'::jsonb,
   subscription_tier  text not null default 'free' check (subscription_tier in ('free','basic','family')),
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
@@ -137,7 +137,7 @@ create table if not exists public.access_requests (
 create table if not exists public.notifications (
   id          text primary key,
   account_id  uuid not null references auth.users(id) on delete cascade,
-  type        text not null check (type in ('access_request','weekly_report','device_added','limit_reached','tamper_attempt')),
+  type        text not null check (type in ('access_request','weekly_report','device_added','limit_reached','tamper_attempt','harm_signal')),
   title       text not null,
   body        text not null,
   is_read     boolean not null default false,
@@ -171,6 +171,17 @@ create table if not exists public.content_catalog (
 create index if not exists content_catalog_tmdb_idx on public.content_catalog(tmdb_id, content_type);
 create index if not exists content_catalog_platforms_idx on public.content_catalog using gin(platforms);
 create index if not exists content_catalog_genres_idx on public.content_catalog using gin(genres);
+
+-- Shared, persistent domain category cache (cascade result store).
+-- The DNS worker writes here via service role and reads it cache-first so an
+-- AI/feed classification is computed once per domain and reused by every user.
+-- A row with category = null is a negative cache (known-uncategorized).
+create table if not exists public.domain_categories (
+  domain      text primary key,
+  category    text,
+  source      text not null default 'ai' check (source in ('ai','feed','manual')),
+  updated_at  timestamptz not null default now()
+);
 
 create table if not exists public.content_scores (
   content_id          text primary key references public.content_catalog(id) on delete cascade,
@@ -262,6 +273,10 @@ alter table public.content_catalog     enable row level security;
 alter table public.content_scores      enable row level security;
 alter table public.platform_availability enable row level security;
 alter table public.content_criteria    enable row level security;
+
+-- domain_categories holds no user data and is only accessed by the worker's
+-- service role (which bypasses RLS). RLS on + no policy keeps anon/auth locked out.
+alter table public.domain_categories   enable row level security;
 
 create policy "content_catalog: public read" on public.content_catalog
   for select using (true);

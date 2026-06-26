@@ -1,0 +1,14 @@
+{
+  "id": "session-1782444494444",
+  "startedAt": "2026-06-26T03:28:14.444Z",
+  "cwd": "/Users/talipcolak/Desktop/Guardian/guardian/apps/mobile",
+  "context": {},
+  "metrics": {
+    "edits": 6,
+    "commands": 0,
+    "tasks": 0,
+    "errors": 0
+  },
+  "endedAt": "2026-06-26T13:13:09.416Z",
+  "duration": 35094975
+}

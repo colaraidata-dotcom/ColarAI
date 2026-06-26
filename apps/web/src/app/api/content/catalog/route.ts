@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { calculateFitScore } from '@/lib/content/scorer'
+import { failSafeFitScore } from '@guardian/shared/constants'
+import type { ProfileType } from '@guardian/shared'
 
 // GET /api/content/catalog?profile_id=xxx&genre=animation&platform=netflix&page=1
 export async function GET(request: NextRequest) {
@@ -19,15 +21,17 @@ export async function GET(request: NextRequest) {
 
   // Fetch profile criteria if profile_id given
   let criteria = null
+  let profileType: ProfileType | null = null
   if (profileId) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, type')
       .eq('id', profileId)
       .eq('account_id', user.id)
       .single()
 
     if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+    profileType = profile.type as ProfileType
 
     const { data } = await supabase
       .from('content_criteria')
@@ -72,11 +76,18 @@ export async function GET(request: NextRequest) {
         ? item.content_scores[0]
         : item.content_scores
 
-      const fitScore = criteria && scores
-        ? calculateFitScore(scores as Parameters<typeof calculateFitScore>[0], criteria, item.genres)
-        : 100
+      // Unscored (long-tail) content: fall back to the profile's fail-safe
+      // default until the async classifier fills in a score row.
+      const pendingClassification = !scores
+      const fitScore = !criteria
+        ? 100
+        : scores
+          ? calculateFitScore(scores as Parameters<typeof calculateFitScore>[0], criteria, item.genres)
+          : profileType
+            ? failSafeFitScore(profileType)
+            : 100
 
-      return { ...item, content_scores: scores ?? null, fit_score: fitScore }
+      return { ...item, content_scores: scores ?? null, fit_score: fitScore, pending_classification: pendingClassification }
     })
     .filter(item => !criteria || item.fit_score >= (criteria.min_fit_score ?? 70))
     .sort((a, b) => b.fit_score - a.fit_score)

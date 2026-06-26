@@ -1,12 +1,16 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { mockProfiles, mockDevices, mockRules } from '@guardian/shared/mock';
+import { useEffect } from 'react';
+import { useProfilesStore } from '../../store/profiles';
 import { PROFILE_TYPE_META } from '@guardian/shared/constants';
 
 export default function ProfilesScreen() {
   const router = useRouter();
+  const { profiles, isLoading, error, fetch } = useProfilesStore();
+
+  useEffect(() => { fetch(); }, [fetch]);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -20,68 +24,89 @@ export default function ProfilesScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {mockProfiles.map((profile) => {
-          const meta = PROFILE_TYPE_META[profile.type];
-          const profileDevices = mockDevices.filter((d) => d.profileId === profile.id);
-          const rules = mockRules[profile.id] ?? [];
-          const blockedCount = rules.filter((r) => r.action === 'block').length;
+      {isLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#6366F1" />
+        </View>
+      ) : error ? (
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryBtn} onPress={fetch}>
+            <Text style={styles.retryText}>Tekrar dene</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scroll}>
+          {profiles.length === 0 ? (
+            <View style={styles.centered}>
+              <Text style={styles.emptyText}>Henüz profil oluşturulmamış</Text>
+            </View>
+          ) : (
+            profiles.map((profile) => {
+              const meta = PROFILE_TYPE_META[profile.type];
+              const profileDevices = profile.devices ?? [];
+              const blockedCount = 0; // content_rules bloklanan sayısı için ayrı sorgu gerekmez
+              const onlineCount = profileDevices.filter((d) => d.is_online).length;
 
-          return (
-            <TouchableOpacity
-              key={profile.id}
-              style={styles.profileCard}
-              onPress={() => router.push(`/(tabs)/profile/${profile.id}/index`)}
-            >
-              <View style={styles.profileLeft}>
-                <View
-                  style={[styles.avatar, {
-                    backgroundColor: profile.avatarColor + '22',
-                    borderColor: profile.avatarColor + '55',
-                  }]}
-                >
-                  <Text style={{ fontSize: 26 }}>{profile.avatarEmoji}</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <View style={styles.profileNameRow}>
-                    <Text style={styles.profileName}>{profile.name}</Text>
-                    <View style={[styles.statusDot, { backgroundColor: profile.isActive ? '#10B981' : '#6B7280' }]} />
-                  </View>
-                  <Text style={styles.profileType}>{meta.label}</Text>
-                  <View style={styles.profileStats}>
-                    <View style={styles.statChip}>
-                      <Ionicons name="phone-portrait-outline" size={11} color="#9CA3AF" />
-                      <Text style={styles.statChipText}>{profileDevices.length} cihaz</Text>
-                    </View>
-                    <View style={styles.statChip}>
-                      <Ionicons name="close-circle-outline" size={11} color="#EF4444" />
-                      <Text style={[styles.statChipText, { color: '#EF4444' }]}>{blockedCount} engel</Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.profileRight}>
+              return (
                 <TouchableOpacity
-                  style={styles.editBtn}
-                  onPress={() => router.push(`/(tabs)/profile/${profile.id}/edit`)}
+                  key={profile.id}
+                  style={styles.profileCard}
+                  onPress={() => router.push(`/(tabs)/profile/${profile.id}/index`)}
                 >
-                  <Ionicons name="pencil-outline" size={14} color="#818CF8" />
-                </TouchableOpacity>
-                <Ionicons name="chevron-forward" size={16} color="#6B7280" />
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+                  <View style={styles.profileLeft}>
+                    <View
+                      style={[styles.avatar, {
+                        backgroundColor: profile.avatar_color + '22',
+                        borderColor: profile.avatar_color + '55',
+                      }]}
+                    >
+                      <Text style={{ fontSize: 26 }}>{profile.avatar_emoji}</Text>
+                    </View>
+                    <View style={styles.profileInfo}>
+                      <View style={styles.profileNameRow}>
+                        <Text style={styles.profileName}>{profile.display_name}</Text>
+                        <View style={[styles.statusDot, { backgroundColor: profile.is_active ? '#10B981' : '#6B7280' }]} />
+                      </View>
+                      <Text style={styles.profileType}>{meta?.label ?? profile.type}</Text>
+                      <View style={styles.profileStats}>
+                        <View style={styles.statChip}>
+                          <Ionicons name="phone-portrait-outline" size={11} color="#9CA3AF" />
+                          <Text style={styles.statChipText}>{profileDevices.length} cihaz</Text>
+                        </View>
+                        {onlineCount > 0 && (
+                          <View style={styles.statChip}>
+                            <Ionicons name="wifi-outline" size={11} color="#10B981" />
+                            <Text style={[styles.statChipText, { color: '#10B981' }]}>{onlineCount} çevrimiçi</Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  </View>
 
-        <TouchableOpacity
-          style={styles.addCard}
-          onPress={() => router.push('/(tabs)/profile/new')}
-        >
-          <Ionicons name="add-circle-outline" size={24} color="#6366F1" />
-          <Text style={styles.addCardText}>Yeni profil ekle</Text>
-        </TouchableOpacity>
-      </ScrollView>
+                  <View style={styles.profileRight}>
+                    <TouchableOpacity
+                      style={styles.editBtn}
+                      onPress={() => router.push(`/(tabs)/profile/${profile.id}/edit`)}
+                    >
+                      <Ionicons name="pencil-outline" size={14} color="#818CF8" />
+                    </TouchableOpacity>
+                    <Ionicons name="chevron-forward" size={16} color="#6B7280" />
+                  </View>
+                </TouchableOpacity>
+              );
+            })
+          )}
+
+          <TouchableOpacity
+            style={styles.addCard}
+            onPress={() => router.push('/(tabs)/profile/new')}
+          >
+            <Ionicons name="add-circle-outline" size={24} color="#6366F1" />
+            <Text style={styles.addCardText}>Yeni profil ekle</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
@@ -97,6 +122,11 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 10,
     backgroundColor: '#6366F1', alignItems: 'center', justifyContent: 'center',
   },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
+  errorText: { fontSize: 14, color: '#EF4444', textAlign: 'center', marginBottom: 12 },
+  retryBtn: { backgroundColor: '#6366F1', borderRadius: 10, paddingHorizontal: 20, paddingVertical: 8 },
+  retryText: { fontSize: 14, fontWeight: '600', color: '#fff' },
+  emptyText: { fontSize: 14, color: '#6B7280' },
   scroll: { padding: 20, gap: 10, paddingBottom: 40 },
   profileCard: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

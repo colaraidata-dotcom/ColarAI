@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { VALUE_PROFILE_MAP } from '@guardian/shared/constants'
 
 // GET /api/content/criteria?profile_id=xxx
 export async function GET(request: NextRequest) {
@@ -39,9 +40,17 @@ export async function PUT(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const { profile_id, ...fields } = body
+  const { profile_id, preset_id, ...fields } = body
 
   if (!profile_id) return NextResponse.json({ error: 'profile_id required' }, { status: 400 })
+
+  // A value-profile preset expands into criteria fields. Explicit fields in the
+  // body still win, so the user can fine-tune after picking a preset.
+  if (preset_id) {
+    const preset = VALUE_PROFILE_MAP[preset_id]
+    if (!preset) return NextResponse.json({ error: 'Unknown preset_id' }, { status: 400 })
+    Object.assign(fields, { ...preset.criteria, ...fields })
+  }
 
   const { data: profile } = await supabase
     .from('profiles')
